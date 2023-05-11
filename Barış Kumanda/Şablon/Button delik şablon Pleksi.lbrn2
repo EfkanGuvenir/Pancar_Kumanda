@@ -56,7 +56,7 @@
         <rampLength Value="0"/>
         <rampOuter Value="0"/>
         <forceConstantPower Value="0"/>
-        <numPasses Value="3"/>
+        <numPasses Value="4"/>
         <zPerPass Value="0"/>
         <perforate Value="0"/>
         <perfLen Value="0.1"/>

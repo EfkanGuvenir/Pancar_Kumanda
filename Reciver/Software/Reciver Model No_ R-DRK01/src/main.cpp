@@ -1,4 +1,4 @@
-//*----V1.0 (Beta_1)----*//
+//*----V1.0 (Beta_2)----*//
 
 #include <Arduino.h>
 #include <VirtualWire.h> //433RF library
@@ -82,7 +82,6 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
       else
       {
         sokum_aktif = true;
-        bit_2 = bit_2 + sokum_send_DEC_cod;
         digitalWrite(sokum_led, HIGH);
       }
     }
@@ -92,10 +91,7 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
       if (lamba_aktif)
         lamba_aktif = false;
       else
-      {
         lamba_aktif = true;
-        bit_2 = bit_2 + lamba_send_DEC_cod;
-      }
     }
 
     if (data == "5") //* Sökücü Yukarı

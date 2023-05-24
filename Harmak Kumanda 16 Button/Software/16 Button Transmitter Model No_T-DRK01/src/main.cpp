@@ -1,4 +1,4 @@
-//*----V1.0 (Beta_1)----*//
+//*----V1.0 Final----*//
 
 #include <Arduino.h>
 #include <Keypad2.h> //matrix button library
@@ -178,37 +178,37 @@ void loop()
   switch (key) // Basılan tuş için ayarlama yap
   {
   case '0': // sayaca 0 ise
-    press_button = 1;
+    press_button = 16;
     break; // swtich den çık
   case '1':
-    press_button = 2;
+    press_button = 1;
     break;
   case '2':
-    press_button = 3;
-    break;
-  case '3':
-    press_button = 4;
-    break;
-  case '4':
-    press_button = 5;
-    break;
-  case '5':
     press_button = 6;
     break;
-  case '6':
+  case '3':
     press_button = 7;
     break;
+  case '4':
+    press_button = 3;
+    break;
+  case '5':
+    press_button = 4;
+    break;
+  case '6':
+    press_button = 11;
+    break;
   case '7':
-    press_button = 8;
+    press_button = 2;
     break;
   case '8':
-    press_button = 9;
+    press_button = 5;
     break;
   case '9':
-    press_button = 10;
+    press_button = 8;
     break;
   case 'A':
-    press_button = 11;
+    press_button = 9;
     break;
   case 'B':
     press_button = 12;
@@ -217,13 +217,13 @@ void loop()
     press_button = 13;
     break;
   case 'D':
-    press_button = 14;
+    press_button = 10;
     break;
   case '*':
-    press_button = 15;
+    press_button = 14;
     break;
   case '#':
-    press_button = 16;
+    press_button = 15;
     break;
   }
   /**************************************************************/

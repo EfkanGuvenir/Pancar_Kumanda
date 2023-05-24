@@ -4,10 +4,6 @@
 //* Pin Out
 const int RF_module_pin = 2; // 433mhz Alıcının Bağlı Olduğu Pin (interrupt olsa iyi olur)
 
-void rf_data(String data) //* Gelen Datanın Ayıklanması
-{
-}
-
 void setup()
 {
   Serial.begin(9600);           // Seri Monitör

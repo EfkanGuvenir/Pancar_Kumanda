@@ -1,13 +1,13 @@
-//*----V1.0 (Beta_2)----*//
+//*----V1.0 (Beta_3)----*//
 
 #include <Arduino.h>
 #include <VirtualWire.h> //433RF library
 
 //* Pin Out
-const int RF_module_pin = PD2;        // 433mhz Alıcının Bağlı Olduğu Pin (interrupt olsa iyi olur)
-const int otomatik_led = PD3;         // Otomatik Söküm Sisteme Girdiğinde bildirim ışığı
-const int sokum_led = PD4;            // Söküm Sisteme Girdiğinde bildirim ışığı
-const int RX_data_otomatik_led = PD5; // RF'den Gelen Veri Olduğunda Bildirilecek led
+const int RF_module_pin = 11; // 433mhz Alıcının Bağlı Olduğu Pin (interrupt olsa iyi olur)
+const int otomatik_led = 12;  // Otomatik Söküm Sisteme Girdiğinde bildirim ışığı
+const int sokum_led = 13;     // Söküm Sisteme Girdiğinde bildirim ışığı
+const int RX_data_led = 14;   // RF'den Gelen Veri Olduğunda Bildirilecek led
 
 //* değişken
 uint8_t rf_digit_key = 0; // 4 Bit Şifreleme için değişken değeri
@@ -72,7 +72,7 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
       }
     }
 
-    if (data == "9") //* Söküm
+    if (data == "2") //* Söküm
     {
       if (sokum_aktif)
       {
@@ -94,43 +94,43 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
         lamba_aktif = true;
     }
 
-    if (data == "5") //* Sökücü Yukarı
+    if (data == "3") //* Sökücü Yukarı
       bit_2 = bit_2 + sokucu_yukari_send_DEC_cod;
 
-    if (data == "6") //* Sökücü Aşağı
+    if (data == "4") //* Sökücü Aşağı
       bit_2 = bit_2 + sokucu_asagi_send_DEC_cod;
 
-    if (data == "10") //* Sökücü Sağa
+    if (data == "5") //* Sökücü Sağa
       bit_1 = bit_1 + sokucu_sag_send_DEC_cod;
 
-    if (data == "2") //* Sökücü Sola
+    if (data == "6") //* Sökücü Sola
       bit_1 = bit_1 + sokucu_sol_send_DEC_cod;
 
-    if (data == "3") //* Depo Yukarı
+    if (data == "7") //* Depo Yukarı
       bit_1 = bit_1 + depo_yukari_send_DEC_cod;
 
-    if (data == "11") //* Depo Aşağı
+    if (data == "8") //* Depo Aşağı
       bit_1 = bit_1 + depo_asagi_send_DEC_cod;
 
-    if (data == "4") //* Hazırlayıcı Yukarı
+    if (data == "9") //* Hazırlayıcı Yukarı
       bit_2 = bit_2 + hazirlayici_yukari_send_DEC_cod;
 
-    if (data == "16") //* Hazırlayıcı Aşağı
+    if (data == "10") //* Hazırlayıcı Aşağı
       bit_2 = bit_2 + hazirlayici_asagi_send_DEC_cod;
 
-    if (data == "7") //* İlave Kapatma
+    if (data == "11") //* İlave Kapatma
       bit_1 = bit_1 + ilave_kapat_send_DEC_cod;
 
-    if (data == "8") //* İlave açma
+    if (data == "12") //* İlave açma
       bit_2 = bit_2 + ilave_ac_send_DEC_cod;
 
-    if (data == "12") //* Boşalt Çalıştır
+    if (data == "13") //* Boşalt Çalıştır
       bit_1 = bit_1 + bosalt_calis_send_DEC_cod;
 
-    if (data == "13") //* Boşalt Durdur
+    if (data == "14") //* Boşalt Durdur
       bit_1 = bit_1 + bosalt_dur_send_DEC_cod;
 
-    if (data == "14") //* Sistem Geri
+    if (data == "16") //* Sistem Geri
       bit_2 = bit_2 + sistem_geri_send_DEC_cod;
 
     flag = true; // Flag'ı Etkinleştir
@@ -139,13 +139,13 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
 
 void setup()
 {
-  Serial.begin(1200);                    // Seri Monitör
-  vw_set_rx_pin(RF_module_pin);          // 433mhz Modül Pin'i Belirlenmesi
-  vw_setup(1000);                        // Saniye/Bit
-  vw_rx_start();                         // Start the receiver PLL running
-  pinMode(RX_data_otomatik_led, OUTPUT); // Pin'i Çıkış Olarak Belirle
-  pinMode(otomatik_led, OUTPUT);         // Pin'i Çıkış Olarak Belirle
-  pinMode(sokum_led, OUTPUT);            // Pin'i Çıkış Olarak Belirle
+  Serial.begin(1200);            // Seri Monitör
+  vw_set_rx_pin(RF_module_pin);  // 433mhz Modül Pin'i Belirlenmesi
+  vw_setup(1000);                // Saniye/Bit
+  vw_rx_start();                 // Start the receiver PLL running
+  pinMode(RX_data_led, OUTPUT);  // Pin'i Çıkış Olarak Belirle
+  pinMode(otomatik_led, OUTPUT); // Pin'i Çıkış Olarak Belirle
+  pinMode(sokum_led, OUTPUT);    // Pin'i Çıkış Olarak Belirle
 }
 
 void loop()
@@ -156,8 +156,8 @@ void loop()
 
   if (vw_get_message(buf, &buflen)) //* RF Veri Gelirse;
   {
-    digitalWrite(RX_data_otomatik_led, HIGH); // Veri Geldiğini Belirten Led
-    for (int i = 0; i < 2; i++)               // Gelen Verinin 2 Satırını Al
+    digitalWrite(RX_data_led, HIGH); // Veri Geldiğini Belirten Led
+    for (int i = 0; i < 2; i++)      // Gelen Verinin 2 Satırını Al
     {
       if (i == 0)                           // İlk Stır
       {                                     // İlk Satır Kumanda Yetkisi İçin
@@ -172,7 +172,7 @@ void loop()
       if ((i == 1) && (yetki == true)) // 2. Satır
         rf_data(String(buf[i], DEC));  // Gelen Veriyi Void'e Aktar
     }
-    digitalWrite(RX_data_otomatik_led, LOW); // Verinin Bittiğini Belirten Led
+    digitalWrite(RX_data_led, LOW); // Verinin Bittiğini Belirten Led
   }
 
   //* Mainboard'a Gönderilen Veri

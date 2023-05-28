@@ -1,4 +1,4 @@
-//*----V1.0 Final----*//
+//*----V1.1----*//
 
 #include <Arduino.h>
 #include <Keypad2.h> //matrix button library
@@ -140,13 +140,13 @@ void setup()
   digitalWrite(rf_digit_key_power, HIGH);
   delay(5);
   if (analogRead(A0) < 500) // 1.Anahtar
-    rf_digit_key = rf_digit_key + 5;
+    rf_digit_key = rf_digit_key + 1;
   if (analogRead(A1) < 500) // 2.Anahtar
-    rf_digit_key = rf_digit_key + 10;
+    rf_digit_key = rf_digit_key + 3;
   if (analogRead(A2) < 500) // 3.Anahtar
-    rf_digit_key = rf_digit_key + 15;
+    rf_digit_key = rf_digit_key + 5;
   if (analogRead(A3) < 500) // 4.Anahtar
-    rf_digit_key = rf_digit_key + 20;
+    rf_digit_key = rf_digit_key + 7;
   digitalWrite(rf_digit_key_power, LOW);
   /**************************************************************/
   // pin change interrupt

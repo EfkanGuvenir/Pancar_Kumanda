@@ -3,6 +3,9 @@
 #include <Arduino.h>
 #include <VirtualWire.h> //433RF library
 
+//* Şifreleme
+uint8_t kimlik_dogrulama_key = 0; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (0-255 Arasında değer olmalı)
+
 //* Pin Out
 const int RF_module_pin = 11; // 433mhz Alıcının Bağlı Olduğu Pin (interrupt olsa iyi olur)
 const int otomatik_led = 12;  // Otomatik Söküm Sisteme Girdiğinde bildirim ışığı
@@ -14,9 +17,8 @@ const int Switch3 = 25;       // Şifreleme Anahtarının 3. biti
 const int Switch4 = 34;       // Şifreleme Anahtarının 4. biti
 
 //* değişken
-uint8_t rf_digit_key = 0; // 4 Bit Şifreleme için değişken değeri
-bool yetki = false;       // Kumanda Şifrelemede Yetkilendirme Değişkeni
-bool flag = false;        // Tuşa basılı tuttuğu sürece saçmalamaması için
+bool yetki = false; // Kumanda Şifrelemede Yetkilendirme Değişkeni
+bool flag = false;  // Tuşa basılı tuttuğu sürece saçmalamaması için
 
 bool bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0;         // Mainboard'a Gidecek Birinci Veri
 bool bit15, bit14, bit13, bit12, bit11, bit10, bit9, bit8;   // Mainboard'a Gidecek  İkinci Veri
@@ -142,32 +144,10 @@ void setup()
   vw_setup(1000);               // Saniye/Bit
   vw_rx_start();                // Start the receiver PLL running
 
-  //* Pin Output input
-  pinMode(Switch1, INPUT);
-  pinMode(Switch2, INPUT);
-  pinMode(Switch3, INPUT);
-  pinMode(Switch4, INPUT);
+  //* Pin Output
   pinMode(RX_data_led, OUTPUT);  // Pin'i Çıkış Olarak Belirle
   pinMode(otomatik_led, OUTPUT); // Pin'i Çıkış Olarak Belirle
   pinMode(sokum_led, OUTPUT);    // Pin'i Çıkış Olarak Belirle
-
-  if (digitalRead(Switch1) == HIGH)
-  {
-    rf_digit_key = rf_digit_key + 1;
-  }
-  if (digitalRead(Switch2) == HIGH)
-  {
-    rf_digit_key = rf_digit_key + 3;
-  }
-  if (digitalRead(Switch3) == HIGH)
-  {
-    rf_digit_key = rf_digit_key + 5;
-  }
-  if (digitalRead(Switch4) == HIGH)
-  {
-    rf_digit_key = rf_digit_key + 7;
-  }
-  rf_digit_key = 0;
 }
 
 void loop()
@@ -186,8 +166,8 @@ void loop()
         String sifre = String(buf[i], DEC); // Gelen Veriyi Oku
         int sifre_int = sifre.toInt();      // string'i int çevir
 
-        if (sifre_int == rf_digit_key) // Yetkiyi Sorgula
-          yetki = true;                // Yetki Verildi
+        if (sifre_int == kimlik_dogrulama_key) // Yetkiyi Sorgula
+          yetki = true;                        // Yetki Verildi
         else
           yetki = false; // Yetkisiz Kumanda
       }

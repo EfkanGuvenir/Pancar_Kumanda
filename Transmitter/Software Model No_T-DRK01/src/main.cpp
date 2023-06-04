@@ -6,6 +6,7 @@
 #include <avr/power.h>
 #include <VirtualWire.h> //433RF library
 
+//* Şifreleme
 uint8_t kimlik_dogrulama_key; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (0-255 Arasında değer olmalı)
 
 const byte ROWS = 4;

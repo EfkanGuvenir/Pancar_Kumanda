@@ -1,4 +1,4 @@
-//*---- T-DRK01 V1.3  ----*//
+//*---- T-DRK01 V1.2  ----*//
 
 #include <Arduino.h>
 #include <Keypad2.h> //matrix button library

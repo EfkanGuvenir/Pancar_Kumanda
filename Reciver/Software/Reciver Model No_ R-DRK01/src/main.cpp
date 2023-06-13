@@ -1,4 +1,5 @@
 //*---- DRK01 V1.0  (Beta_4)  ----*//
+//*----	16-Tuş Model A'ya Uygundur.----*//
 
 #include <Arduino.h>
 #include <VirtualWire.h> //433RF library

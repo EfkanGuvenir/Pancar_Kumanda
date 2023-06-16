@@ -1,8 +1,9 @@
-//*---- DRK01 V1.0  (Beta_4)  ----*//
+//*---- DRK01 V1.1  ----*//
 //*----	16-Tuş Model A'ya Uygundur.----*//
 
 #include <Arduino.h>
 #include <VirtualWire.h> //433RF library
+#include <avr/wdt.h>     // Watchdog için gerekli kütüphane
 
 //* Şifreleme
 uint8_t kimlik_dogrulama_key = 0; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (0-255 Arasında değer olmalı)
@@ -149,6 +150,11 @@ void setup()
   pinMode(RX_data_led, OUTPUT);  // Pin'i Çıkış Olarak Belirle
   pinMode(otomatik_led, OUTPUT); // Pin'i Çıkış Olarak Belirle
   pinMode(sokum_led, OUTPUT);    // Pin'i Çıkış Olarak Belirle
+
+  //* watchdog
+  wdt_disable();       // Watchdog'u devre dışı bırakın ve 2 saniyeden fazla bekleyin
+  delay(3000);         // Yanlış yapılandırma durumunda Arduino'nun sonsuza kadar sıfırlanmaya devam etmemesi için yapıldı
+  wdt_enable(WDTO_2S); // 2 saniyelik bir zaman aşımı ile bekçi köpeğini etkinleştir
 }
 
 void loop()
@@ -211,6 +217,8 @@ void loop()
   Serial.write(binaryData_1);
   Serial.write(binaryData_2);
   Serial.write(binaryData_3);
+
+  wdt_reset(); // watchdog Yenile (Aksi Halde 2sn içinye resset çeker)
 
   delay(59); // Bekleme Süresi (Değiştirilebilir)
 }

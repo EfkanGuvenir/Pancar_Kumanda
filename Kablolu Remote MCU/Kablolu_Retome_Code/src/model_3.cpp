@@ -1,4 +1,5 @@
-//*---- T(kablolu)-DRK01 V1.0  ----*//
+//*---- T(kablolu) V1.0  ----*//
+//*---- Model_3----*//
 /**************************************************************/
 #include <Arduino.h>
 #include <Keypad2.h> // Matrix button library

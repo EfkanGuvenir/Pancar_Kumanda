@@ -21,7 +21,7 @@ byte binaryData_3 = 0;
 void setup()
 {
   delay(5000);
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial2.begin(1200);            // 2. UART başlatılıyor
   SerialBT.begin("Doruk_Teknik"); // Bluetooth device name
 }
@@ -29,6 +29,11 @@ void setup()
 void loop()
 {
   unsigned long currentMillis = millis(); // zamanlayıcıyı oku
+  /**************************************************************/
+  if (Serial.available())
+  {
+    SerialBT.write(Serial.read());
+  }
   /**************************************************************/
   if (SerialBT.available())
   { // Bluetooth'dan Gelen Veriyi Oku

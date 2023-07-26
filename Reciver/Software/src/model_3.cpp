@@ -1,5 +1,5 @@
-//*---- DRK03 V1.1  ----*//
-//*----	12-Tuş Model A'ya Uygundur.----*//
+//*---- V1.1  ----*//
+//*----	Model_3 ----*//
 
 #include <Arduino.h>     //Arduino Library
 #include <VirtualWire.h> //433RF library

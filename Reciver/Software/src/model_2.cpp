@@ -1,5 +1,5 @@
-//*---- DRK02 V1.1  ----*//
-//*----	16-Tuş Model B'ya Uygundur.----*//
+//*---- V1.1  ----*//
+//*----	Model_2 ----*//
 
 #include <Arduino.h>     //Arduino Library
 #include <VirtualWire.h> //433RF library

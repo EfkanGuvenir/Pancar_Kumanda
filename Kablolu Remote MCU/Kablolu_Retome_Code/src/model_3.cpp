@@ -1,5 +1,5 @@
 //*---- T(kablolu) V1.0  ----*//
-//*---- Model_4----*//
+//*---- Model_3----*//
 /**************************************************************/
 #include <Arduino.h>
 #include <Keypad2.h> // Matrix button library
@@ -36,7 +36,6 @@ bool bit6 = true; // Kumanda Sabit 64 Gönderiyorsa Bu onun için
 
 bool bit7, bit5, bit4, bit3, bit2, bit1, bit0;             // Mainboard'a Gidecek Birinci Veri
 bool bit15, bit14, bit13, bit12, bit11, bit10, bit9, bit8; // Mainboard'a Gidecek  İkinci Veri
-
 /**************************************************************/
 //* Zamanlama
 unsigned long ISR1_Zaman = 50; // ms
@@ -50,7 +49,7 @@ void setup()
     pinMode(led_2, OUTPUT); // Valf İçin Kullanılan Led
     pinMode(led_3, OUTPUT); // Pin'i Çıkış Olarak Belirle
 
-    digitalWrite(led_1, HIGH);
+    digitalWrite(led_1, LOW);
     digitalWrite(led_2, LOW);
     digitalWrite(led_3, LOW);
     /**************************************************************/
@@ -94,85 +93,72 @@ void loop()
     {
         switch (key)
         {
-        case 'A': //* Otomatik
+        case 'A': //* Otomatik On/Off
             digitalWrite(led_2, HIGH);
-            otomatik_aktif = true; // Otomatiği Kapat
-            digitalWrite(led_1, LOW);
-            digitalWrite(led_3, HIGH);
-            break; // swtich den çık
-        case '2':  //* Manuel
-            digitalWrite(led_2, HIGH);
-            otomatik_aktif = false;
-            digitalWrite(led_3, LOW);
-            digitalWrite(led_1, HIGH);
-            break;
-        case 'D': //* Söküm
-            digitalWrite(led_2, HIGH);
-            if (sokum_aktif)
-            {
-                sokum_aktif = false;
-            }
+            otomatik_aktif = !otomatik_aktif; // Otomatiği Kapat
+            if (otomatik_aktif == true)
+                digitalWrite(led_3, HIGH);
             else
-            {
-                sokum_aktif = true;
-            }
-            break;
-        case '0':
-            bit10 = true;
+                digitalWrite(led_3, LOW);
+            break; // swtich den çık
+
+        case '2': //* Makina On/Off
             digitalWrite(led_2, HIGH);
+            sokum_aktif = !sokum_aktif;
+            if (sokum_aktif == true)
+                digitalWrite(led_1, HIGH);
+            else
+                digitalWrite(led_1, LOW);
             break;
-        case '1':
-            bit2 = true;
+
+        case 'D': //* Depo On/Off
             digitalWrite(led_2, HIGH);
+            depo_aktif = !depo_aktif;
             break;
-        case '3':
+
+        case '3': //*Söküm Yukarı
             bit4 = true;
             digitalWrite(led_2, HIGH);
             break;
-        case '4':
-            digitalWrite(led_2, HIGH);
-            break;
-        case '5':
-            digitalWrite(led_2, HIGH);
-            break;
-        case '6':
-            digitalWrite(led_2, HIGH);
-            break;
-        case '7':
-            bit8 = true;
-            digitalWrite(led_2, HIGH);
-            break;
-        case '8':
-            bit7 = true;
-            digitalWrite(led_2, HIGH);
-            break;
-        case '9':
+
+        case '9': //*Söküm Aşağı
             bit3 = true;
             digitalWrite(led_2, HIGH);
             break;
-        case 'B':
-            bit15 = true;
+
+        case '1': //* OK Sağa
+            bit2 = true;
             digitalWrite(led_2, HIGH);
             break;
-        case 'C':
+
+        case 'C': //* OK Sola
             bit1 = true;
             digitalWrite(led_2, HIGH);
             break;
-        case '#':
+
+        case 'B': //* Makina Ters
+            bit15 = true;
+            digitalWrite(led_2, HIGH);
+            break;
+
+        case '0': //* Hazırlayıcı Yukarı
             bit9 = true;
             digitalWrite(led_2, HIGH);
             break;
-        case '*':
-            if (depo_aktif == false)
-            {
-                depo_aktif = true;
-                digitalWrite(led_2, HIGH);
-            }
-            else
-            {
-                depo_aktif = false;
-                digitalWrite(led_2, HIGH);
-            }
+
+        case '*': //* Hazırlayıcı Aşağı
+            bit10 = true;
+            digitalWrite(led_2, HIGH);
+            break;
+
+        case '5': //* Kırma Kapalı
+            bit7 = true;
+            digitalWrite(led_2, HIGH);
+            break;
+
+        case '4': //* Kırma Açık
+            bit8 = true;
+            digitalWrite(led_2, HIGH);
             break;
         }
     }

@@ -1,6 +1,6 @@
 //*----PIC to ATmega Adapter V1.0  ----*//
 //*---- Uyumlu Anakart: mainboard ver6.3 model  ----*//
-//*---- Model_2 Kablosuz Kumandaya Uygundur----*//
+//*---- Model_1 Kablosuz Kumandaya Uygundur----*//
 
 #include <Arduino.h>
 #include <VirtualWire.h> //433RF library

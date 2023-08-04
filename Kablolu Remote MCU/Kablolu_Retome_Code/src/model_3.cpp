@@ -1,4 +1,4 @@
-//*---- T(kablolu) Kumanda MCU----*//
+//*---- T(kablolu) Kumanda MCU V1.2----*//
 //*---- Model_3 Kumandalara Uygundur----*//
 /**************************************************************/
 #include <Arduino.h>

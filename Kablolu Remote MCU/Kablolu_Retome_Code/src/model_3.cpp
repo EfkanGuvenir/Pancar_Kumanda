@@ -1,5 +1,5 @@
-//*---- T(kablolu) V1.0  ----*//
-//*---- Model_3----*//
+//*---- T(kablolu) Kumanda MCU----*//
+//*---- Model_3 Kumandalara Uygundur----*//
 /**************************************************************/
 #include <Arduino.h>
 #include <Keypad2.h> // Matrix button library
@@ -32,14 +32,18 @@ bool sokum_aktif = false;    // On-Off İçin Değişlen
 bool depo_aktif = false;     // On-Off İçin Değişlen
 /**************************************************************/
 //* Değişkenler
+bool button_flag; // Button yanlış basılmaların önüne geçer
 bool bit6 = true; // Kumanda Sabit 64 Gönderiyorsa Bu onun için
 
 bool bit7, bit5, bit4, bit3, bit2, bit1, bit0;             // Mainboard'a Gidecek Birinci Veri
 bool bit15, bit14, bit13, bit12, bit11, bit10, bit9, bit8; // Mainboard'a Gidecek  İkinci Veri
 /**************************************************************/
 //* Zamanlama
-unsigned long ISR1_Zaman = 50; // ms
-unsigned long ISR1_evvelkiMILLIS;
+unsigned long ISR1_Zaman = 50;    // Veriyi Gönderecek Süre
+unsigned long ISR1_evvelkiMILLIS; // Veriyi Gönderecek Süre
+
+unsigned long lastDebounceTime;    // On Off Tuşlar için Yanlış Basımın Önüne Geçmek için
+unsigned long debounceDelay = 100; // On Off Tuşlar için Yanlış Basımın Önüne Geçmek için
 /**************************************************************/
 void setup()
 {
@@ -62,6 +66,12 @@ void setup()
 
 void loop()
 {
+    /**************************************************************/
+    // todo ON OFF Tuş Yanlış Basılmalarına karşı bir önlem
+    if (((millis() - lastDebounceTime) > debounceDelay) && (button_flag == true))
+    {
+        button_flag = false;
+    }
     /**************************************************************/
     unsigned long currentMillis = millis(); // zamanlayıcıyı oku
     /**************************************************************/
@@ -95,25 +105,37 @@ void loop()
         {
         case 'A': //* Otomatik On/Off
             digitalWrite(led_2, HIGH);
-            otomatik_aktif = !otomatik_aktif; // Otomatiği Kapat
-            if (otomatik_aktif == true)
-                digitalWrite(led_3, HIGH);
-            else
-                digitalWrite(led_3, LOW);
+            if (button_flag == false)
+            {
+                button_flag = true;
+                otomatik_aktif = !otomatik_aktif; // Otomatiği Kapat
+                if (otomatik_aktif == true)
+                    digitalWrite(led_3, HIGH);
+                else
+                    digitalWrite(led_3, LOW);
+            }
             break; // swtich den çık
 
         case '2': //* Makina On/Off
             digitalWrite(led_2, HIGH);
-            sokum_aktif = !sokum_aktif;
-            if (sokum_aktif == true)
-                digitalWrite(led_1, HIGH);
-            else
-                digitalWrite(led_1, LOW);
+            if (button_flag == false)
+            {
+                button_flag = true;
+                sokum_aktif = !sokum_aktif;
+                if (sokum_aktif == true)
+                    digitalWrite(led_1, HIGH);
+                else
+                    digitalWrite(led_1, LOW);
+            }
             break;
 
         case 'D': //* Depo On/Off
             digitalWrite(led_2, HIGH);
-            depo_aktif = !depo_aktif;
+            if (button_flag == false)
+            {
+                button_flag = true;
+                depo_aktif = !depo_aktif;
+            }
             break;
 
         case '3': //*Söküm Yukarı
@@ -161,8 +183,11 @@ void loop()
             digitalWrite(led_2, HIGH);
             break;
         }
+        lastDebounceTime = millis(); // Tuşa Basım Zamanlayıcısını Sıfırla
     }
+
     /**************************************************************/
+    // todo Mainboard'a Gönderilecek Veriler
     if (currentMillis - ISR1_evvelkiMILLIS >= ISR1_Zaman) // Zamanlayıcı
     {
         ISR1_evvelkiMILLIS = currentMillis;

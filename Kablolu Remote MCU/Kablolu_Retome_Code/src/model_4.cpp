@@ -1,5 +1,7 @@
 //*---- T(kablolu) Kumanda MCU V1.2  ----*//
 //*---- Model_4 Kumandalara Uygundur----*//
+//*---- bit6 (4. Bit 64) sürekli Aktif.  ----*//
+
 /**************************************************************/
 #include <Arduino.h>
 #include <Keypad2.h> // Matrix button library

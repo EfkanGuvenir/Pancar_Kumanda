@@ -1,15 +1,17 @@
 //*---- V1.1  ----*//
-//*----	Model_3 ----*//
+//*----	Model_B ----*//
 
 #include <Arduino.h>     //Arduino Library
 #include <VirtualWire.h> //433RF library
 #include <avr/wdt.h>     // Watchdog için gerekli kütüphane
 
 //*Şifreleme
-uint8_t kimlik_dogrulama_key = 2; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (0-255 Arasında değer olmalı)
+uint8_t kimlik_dogrulama_key = 0; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (0-255 Arasında değer olmalı)
 
 //* Pin Out
 const int RF_module_pin = 11; // 433mhz Alıcının Bağlı Olduğu Pin (interrupt olsa iyi olur)
+const int otomatik_led = 12;  // Otomatik Söküm Sisteme Girdiğinde bildirim ışığı
+const int sokum_led = 13;     // Söküm Sisteme Girdiğinde bildirim ışığı
 const int RX_data_led = 14;   // RF'den Gelen Veri Olduğunda Bildirilecek led
 
 //* değişken
@@ -22,8 +24,8 @@ bool bit23, bit22, bit21, bit20, bit19, bit18, bit17, bit16; // Mainboard'a Gide
 
 //* ON OFF Sistem için
 bool otomatik_aktif = false; // On-Off İçin Değişlen
-bool makina_aktif = false;   // On-Off İçin Değişlen
-bool depo_aktif = false;     // On-Off İçin Değişlen
+bool sokum_aktif = false;    // On-Off İçin Değişlen
+bool lamba_aktif = false;    // On-Off İçin Değişlen
 
 void rf_data(String data) //* Gelen Datanın Ayıklanması
 {
@@ -37,57 +39,42 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
     {
       bit0 = true;
     }
-    if (makina_aktif == true)
+    if (sokum_aktif == true)
     {
-      bit6 = true;
+      bit13 = true;
     }
-    if (depo_aktif == true)
+    if (lamba_aktif == true)
     {
-      bit5 = true;
     }
   }
 
   if ((flag == false) && (data != "0")) // işlemler birdan fazla yapılmaması için
   {
-    if (data == "1") //* Otomatik ON/OFF
+    if (data == "2") //* Otomatik
     {
-      if (otomatik_aktif) // Otomatik Aktif ise
-      {
-        otomatik_aktif = false; // Otomatiği Kapat
-        bit0 = false;           // Otomatiği Kapat
-      }
-      else // Otomatik Aktif Değilse
-      {
-        otomatik_aktif = true;
-        bit0 = true;
-      }
+      otomatik_aktif = false; // Otomatiği Kapat
+      bit0 = false;           // Otomatiği Kapat
+      digitalWrite(otomatik_led, LOW);
     }
-    if (data == "2") //* Makina ON/OFF
+    if (data == "1") //* Manuel
     {
-      if (makina_aktif) // Makina Aktif ise
-      {
-        makina_aktif = false; // Makina Kapat
-        bit6 = false;         // Makina Kapat
-      }
-      else // Makina Aktif Değilse
-      {
-        makina_aktif = true;
-        bit6 = true;
-      }
+      otomatik_aktif = true;
+      bit0 = true;
+      digitalWrite(otomatik_led, HIGH);
     }
-    if (data == "13") //* Depo ON/OFF
+    if (data == "7") //* Söküm
     {
-      if (depo_aktif) // depo Aktif ise
+      if (sokum_aktif)
       {
-        depo_aktif = false; // depo Kapat
-        bit5 = false;       // depo Kapat
-        bit6 = true;        // Makina Ters
-        bit4 = true;        // Boşalt Durdur
+        sokum_aktif = false;
+        bit13 = false;
+        digitalWrite(sokum_led, LOW);
       }
-      else // depo Aktif Değilse
+      else
       {
-        depo_aktif = true;
-        bit5 = true;
+        sokum_aktif = true;
+        bit13 = true;
+        digitalWrite(sokum_led, HIGH);
       }
     }
 
@@ -103,10 +90,10 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
     if (data == "6") //* Sökücü Sola
       bit1 = true;
 
-    if (data == "11") //* Kırma Kapalı
+    if (data == "11") //* Depo Yukarı
       bit8 = true;
 
-    if (data == "12") //* Kırma Açık
+    if (data == "12") //* Depo Aşağı
       bit7 = true;
 
     if (data == "9") //* Hazırlayıcı Yukarı
@@ -115,11 +102,23 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
     if (data == "10") //* Hazırlayıcı Aşağı
       bit12 = true;
 
+    if (data == "11") //* Depo Kapatma
+      bit8 = true;
+
+    if (data == "12") //* Depo açma
+      bit7 = true;
+
     if (data == "13") //* Boşalt Çalıştır
       bit5 = true;
 
-    if (data == "16") //* Makina Ters
-      bit13 = true;
+    if (data == "14") //* Boşalt Durdur
+    {
+      // todo BoşaltDurdur bırakıldığında boşaltma devreye tekrar girdiğinden bir kod daha gönderiyor
+      bit6 = true; // Sistem Geri
+      bit4 = true; // Bosalt DurDur Kodu
+    }
+    if (data == "8") //* Sistem Geri
+      bit6 = true;
 
     flag = true; // Flag'ı Etkinleştir
   }
@@ -133,7 +132,9 @@ void setup()
   vw_rx_start();                // Start the receiver PLL running
 
   //* Pin Output
-  pinMode(RX_data_led, OUTPUT); // Pin'i Çıkış Olarak Belirle
+  pinMode(RX_data_led, OUTPUT);  // Pin'i Çıkış Olarak Belirle
+  pinMode(otomatik_led, OUTPUT); // Pin'i Çıkış Olarak Belirle
+  pinMode(sokum_led, OUTPUT);    // Pin'i Çıkış Olarak Belirle
 
   //* watchdog
   wdt_disable();       // Watchdog'u devre dışı bırakın ve 2 saniyeden fazla bekleyin

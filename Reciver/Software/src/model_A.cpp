@@ -1,11 +1,11 @@
 //*---- V1.1  ----*//
-//*----	Model_2 ----*//
+//*----	Model_A ----*//
 
-#include <Arduino.h>     //Arduino Library
+#include <Arduino.h>
 #include <VirtualWire.h> //433RF library
 #include <avr/wdt.h>     // Watchdog için gerekli kütüphane
 
-//*Şifreleme
+//* Şifreleme
 uint8_t kimlik_dogrulama_key = 0; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (0-255 Arasında değer olmalı)
 
 //* Pin Out
@@ -13,6 +13,10 @@ const int RF_module_pin = 11; // 433mhz Alıcının Bağlı Olduğu Pin (interru
 const int otomatik_led = 12;  // Otomatik Söküm Sisteme Girdiğinde bildirim ışığı
 const int sokum_led = 13;     // Söküm Sisteme Girdiğinde bildirim ışığı
 const int RX_data_led = 14;   // RF'den Gelen Veri Olduğunda Bildirilecek led
+const int Switch1 = 27;       // Şifreleme Anahtarının 1. biti
+const int Switch2 = 26;       // Şifreleme Anahtarının 2. biti
+const int Switch3 = 25;       // Şifreleme Anahtarının 3. biti
+const int Switch4 = 34;       // Şifreleme Anahtarının 4. biti
 
 //* değişken
 bool yetki = false; // Kumanda Şifrelemede Yetkilendirme Değişkeni
@@ -50,19 +54,23 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
 
   if ((flag == false) && (data != "0")) // işlemler birdan fazla yapılmaması için
   {
-    if (data == "2") //* Otomatik
+    if (data == "1") //* Otomatik
     {
-      otomatik_aktif = false; // Otomatiği Kapat
-      bit0 = false;           // Otomatiği Kapat
-      digitalWrite(otomatik_led, LOW);
+      if (otomatik_aktif) // Otomatik Aktif ise
+      {
+        otomatik_aktif = false; // Otomatiği Kapat
+        bit0 = false;           // Otomatiği Kapat
+        digitalWrite(otomatik_led, LOW);
+      }
+      else // Otomatik Aktif Değilse
+      {
+        otomatik_aktif = true;
+        bit0 = true;
+        digitalWrite(otomatik_led, HIGH);
+      }
     }
-    if (data == "1") //* Manuel
-    {
-      otomatik_aktif = true;
-      bit0 = true;
-      digitalWrite(otomatik_led, HIGH);
-    }
-    if (data == "7") //* Söküm
+
+    if (data == "2") //* Söküm
     {
       if (sokum_aktif)
       {
@@ -78,6 +86,13 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
       }
     }
 
+    if (data == "15") //* Lamba
+    {
+      if (lamba_aktif)
+        lamba_aktif = false;
+      else
+        lamba_aktif = true;
+    }
     if (data == "3") //* Sökücü Yukarı
       bit10 = true;
 
@@ -90,10 +105,10 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
     if (data == "6") //* Sökücü Sola
       bit1 = true;
 
-    if (data == "11") //* Depo Yukarı
+    if (data == "7") //* Depo Yukarı
       bit8 = true;
 
-    if (data == "12") //* Depo Aşağı
+    if (data == "8") //* Depo Aşağı
       bit7 = true;
 
     if (data == "9") //* Hazırlayıcı Yukarı
@@ -102,10 +117,10 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
     if (data == "10") //* Hazırlayıcı Aşağı
       bit12 = true;
 
-    if (data == "11") //* Depo Kapatma
+    if (data == "11") //* İlave Kapatma
       bit8 = true;
 
-    if (data == "12") //* Depo açma
+    if (data == "12") //* İlave açma
       bit7 = true;
 
     if (data == "13") //* Boşalt Çalıştır
@@ -117,7 +132,7 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
       bit6 = true; // Sistem Geri
       bit4 = true; // Bosalt DurDur Kodu
     }
-    if (data == "8") //* Sistem Geri
+    if (data == "16") //* Sistem Geri
       bit6 = true;
 
     flag = true; // Flag'ı Etkinleştir

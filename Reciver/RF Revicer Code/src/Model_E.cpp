@@ -1,12 +1,12 @@
 //*---- V1.0  ----*//
-//*----	Model_D ----*//
+//*----	Model_E ----*//
 
 #include <Arduino.h>     //Arduino Library
 #include <VirtualWire.h> //433RF library
 #include <avr/wdt.h>     // Watchdog için gerekli kütüphane
 /**************************************************************/
 //*Şifreleme
-uint8_t kimlik_dogrulama_key = 4; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (0-255 Arasında değer olmalı)
+uint8_t kimlik_dogrulama_key = 5; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (0-255 Arasında değer olmalı)
 /**************************************************************/
 //* Pin Out
 const int RF_module_pin = 11; // 433mhz Alıcının Bağlı Olduğu Pin (interrupt olsa iyi olur)

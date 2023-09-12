@@ -1,12 +1,13 @@
-//*---- V1.0  ----*//
+//*---- V1.2  ----*//
 //*----	Model_E ----*//
+//* ÖzenİŞ 2016 Model'de test Edildi. *//
 
 #include <Arduino.h>     //Arduino Library
 #include <VirtualWire.h> //433RF library
 #include <avr/wdt.h>     // Watchdog için gerekli kütüphane
 /**************************************************************/
 //*Şifreleme
-uint8_t kimlik_dogrulama_key = 5; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (0-255 Arasında değer olmalı)
+uint8_t kimlik_dogrulama_key = 58; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (20-255 Arasında değer olmalı)
 /**************************************************************/
 //* Pin Out
 const int RF_module_pin = 11; // 433mhz Alıcının Bağlı Olduğu Pin (interrupt olsa iyi olur)
@@ -27,6 +28,10 @@ bool depo_aktif = false;     // On-Off İçin Değişlen
 unsigned long ISR1_Zaman = 50;    // 1.Veriyi Gönderecek Süre
 unsigned long ISR1_evvelkiMILLIS; // 1.Veriyi Gönderecek Süre
 bool data_send_flag;              // İki Ayrı data göndereceği süre için
+
+//* Milis Fonksiyonu
+unsigned long ISR2_Zaman = 1000;  // Kumandadan Veri Kesilince Sistemin Sıfırlanacağı Süre
+unsigned long ISR2_evvelkiMILLIS; // Kumandadan Veri Kesilince Sistemin Sıfırlanacağı Süre
 /**************************************************************/
 
 void rf_data(String data) //* Gelen Datanın Ayıklanması
@@ -100,7 +105,7 @@ void setup()
 {
   Serial.begin(2400);           // Seri Monitör
   vw_set_rx_pin(RF_module_pin); // 433mhz Modül Pin'i Belirlenmesi
-  vw_setup(1000);               // Saniye/Bit
+  vw_setup(2000);               // Saniye/Bit
   vw_rx_start();                // Start the receiver PLL running
 
   //* Pin Output
@@ -139,9 +144,16 @@ void loop()
       if ((i == 1) && (yetki == true)) // 2. Satır
         rf_data(String(buf[i], DEC));  // Gelen Veriyi Void'e Aktar
     }
+    ISR2_evvelkiMILLIS = currentMillis;
     digitalWrite(RX_data_led, LOW); // Verinin Bittiğini Belirten Led
   }
-
+  else
+  {
+    if (currentMillis - ISR2_evvelkiMILLIS >= ISR2_Zaman)
+    {
+      rf_data("0"); // Gelen Veriyi Void'e Aktar
+    }
+  }
   /**************************************************************/
 
   if (currentMillis - ISR1_evvelkiMILLIS >= ISR1_Zaman) // Zamanlayıcı
@@ -180,6 +192,4 @@ void loop()
   }
   /**************************************************************/
   wdt_reset(); // watchdog Yenile (Aksi Halde 2sn içinye resset çeker)
-
-  delay(59); // Bekleme Süresi (Değiştirilebilir)
 }

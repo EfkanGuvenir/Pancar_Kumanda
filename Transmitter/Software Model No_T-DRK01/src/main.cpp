@@ -1,4 +1,4 @@
-//*---- T-DRK01 V1.2  ----*//
+//*---- T-DRK01 V1.3  ----*//
 
 #include <Arduino.h>
 #include <Keypad2.h> //matrix button library
@@ -7,7 +7,7 @@
 #include <VirtualWire.h> //433RF library
 
 //* Şifreleme
-uint8_t kimlik_dogrulama_key = 7; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (0-255 Arasında değer olmalı)
+uint8_t kimlik_dogrulama_key = 20; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (20-255 Arasında değer olmalı)
 
 const byte ROWS = 4;
 const byte COLS = 4;
@@ -133,7 +133,7 @@ void goToSleep()
 void setup()
 {
   vw_set_tx_pin(rf_data);    // Vericinin Pin'i Ayrlanıyor
-  vw_setup(1000);            // bps - Vericinin hızı
+  vw_setup(2000);            // bps - Vericinin hızı
   pinMode(rf_power, OUTPUT); // Pin Çıkış Olarak Ayarlanır
   /**************************************************************/
   // pin change interrupt
@@ -150,13 +150,16 @@ void loop()
   /**************************************************************/
   if (kpd.getState() == RELEASED) // Button Bırakıldığını Algılar
   {
-    button_flag = false; // Buttona
     digitalWrite(rf_power, HIGH);
-    delay(5);
-    uint8_t shexData[] = {kimlik_dogrulama_key, 0}; // Gönderilecek hex kodunu temsil eden bayt dizisi
-    vw_send(shexData, sizeof(shexData));
-    vw_wait_tx(); // Wait until the whole message is gone
-    delay(10);
+    button_flag = false; // Buttona
+    delayMicroseconds(50);
+    for (int i = 0; i < 2; i++)
+    {
+      uint8_t shexData[] = {kimlik_dogrulama_key, 0}; // Gönderilecek hex kodunu temsil eden bayt dizisi
+      vw_send(shexData, sizeof(shexData));
+      vw_wait_tx(); // Wait until the whole message is gone
+      delayMicroseconds(500);
+    }
     digitalWrite(rf_power, LOW);
     goToSleep();
     return;
@@ -216,16 +219,16 @@ void loop()
   /**************************************************************/
   if (key)
   {
+    digitalWrite(rf_power, HIGH);
     button_flag = true;
+    delayMicroseconds(50);
   }
   /**************************************************************/
   if (button_flag == true) // buttona basılmışsa
   {
     uint8_t hexData[] = {kimlik_dogrulama_key, press_button}; // Gönderilecek hex kodunu temsil eden bayt dizisi
-    digitalWrite(rf_power, HIGH);                             //
-    delay(5);
     vw_send(hexData, sizeof(hexData));
     vw_wait_tx(); // Wait until the whole message is gone
-    delay(50);
+    delayMicroseconds(500);
   }
 }

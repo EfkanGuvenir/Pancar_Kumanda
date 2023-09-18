@@ -1,13 +1,13 @@
-//*---- V1.1  ----*//
+//*---- V1.2  ----*//
 //*----	Model_A ----*//
 
 #include <Arduino.h>
 #include <VirtualWire.h> //433RF library
 #include <avr/wdt.h>     // Watchdog için gerekli kütüphane
-
+/**************************************************************/
 //* Şifreleme
-uint8_t kimlik_dogrulama_key = 0; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (0-255 Arasında değer olmalı)
-
+uint8_t kimlik_dogrulama_key = 58; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (20-255 Arasında değer olmalı)
+/**************************************************************/
 //* Pin Out
 const int RF_module_pin = 11; // 433mhz Alıcının Bağlı Olduğu Pin (interrupt olsa iyi olur)
 const int otomatik_led = 12;  // Otomatik Söküm Sisteme Girdiğinde bildirim ışığı
@@ -17,27 +17,33 @@ const int Switch1 = 27;       // Şifreleme Anahtarının 1. biti
 const int Switch2 = 26;       // Şifreleme Anahtarının 2. biti
 const int Switch3 = 25;       // Şifreleme Anahtarının 3. biti
 const int Switch4 = 34;       // Şifreleme Anahtarının 4. biti
-
+/**************************************************************/
 //* değişken
 bool yetki = false; // Kumanda Şifrelemede Yetkilendirme Değişkeni
 bool flag = false;  // Tuşa basılı tuttuğu sürece saçmalamaması için
 
-bool bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0;         // Mainboard'a Gidecek Birinci Veri
-bool bit15, bit14, bit13, bit12, bit11, bit10, bit9, bit8;   // Mainboard'a Gidecek  İkinci Veri
-bool bit23, bit22, bit21, bit20, bit19, bit18, bit17, bit16; // Mainboard'a Gidecek  Üçüncü Veri
-
+bool bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0;       // Mainboard'a Gidecek Birinci Veri
+bool bit15, bit14, bit13, bit12, bit11, bit10, bit9, bit8; // Mainboard'a Gidecek  İkinci Veri
+/**************************************************************/
 //* ON OFF Sistem için
 bool otomatik_aktif = false; // On-Off İçin Değişlen
 bool sokum_aktif = false;    // On-Off İçin Değişlen
 bool lamba_aktif = false;    // On-Off İçin Değişlen
+/**************************************************************/
+//* Zamanlama
+unsigned long ISR1_Zaman = 50;    // 1.Veriyi Gönderecek Süre
+unsigned long ISR1_evvelkiMILLIS; // 1.Veriyi Gönderecek Süre
 
+//* Milis Fonksiyonu
+unsigned long ISR2_Zaman = 1000;  // Kumandadan Veri Kesilince Sistemin Sıfırlanacağı Süre
+unsigned long ISR2_evvelkiMILLIS; // Kumandadan Veri Kesilince Sistemin Sıfırlanacağı Süre
+/**************************************************************/
 void rf_data(String data) //* Gelen Datanın Ayıklanması
 {
   if (data == "0") //* Tuş Bırakıldığında
   {
     bit0 = false, bit1 = false, bit2 = false, bit3 = false, bit4 = false, bit5 = false, bit6 = false, bit7 = false;
     bit8 = false, bit9 = false, bit10 = false, bit11 = false, bit12 = false, bit13 = false, bit14 = false, bit15 = false;
-    bit16 = false, bit17 = false, bit18 = false, bit19 = false, bit20 = false, bit21 = false, bit22 = false, bit23 = false;
     flag = false; // Flag'ı Pasifleştir
     if (otomatik_aktif == true)
     {
@@ -143,7 +149,7 @@ void setup()
 {
   Serial.begin(1200);           // Seri Monitör
   vw_set_rx_pin(RF_module_pin); // 433mhz Modül Pin'i Belirlenmesi
-  vw_setup(1000);               // Saniye/Bit
+  vw_setup(2000);               // Saniye/Bit
   vw_rx_start();                // Start the receiver PLL running
 
   //* Pin Output
@@ -159,6 +165,9 @@ void setup()
 
 void loop()
 {
+  /**************************************************************/
+  unsigned long currentMillis = millis(); // zamanlayıcıyı oku
+  /**************************************************************/
   // RF Gelen Data
   uint8_t buf[VW_MAX_MESSAGE_LEN];
   uint8_t buflen = VW_MAX_MESSAGE_LEN;
@@ -181,44 +190,47 @@ void loop()
       if ((i == 1) && (yetki == true)) // 2. Satır
         rf_data(String(buf[i], DEC));  // Gelen Veriyi Void'e Aktar
     }
+    ISR2_evvelkiMILLIS = currentMillis;
     digitalWrite(RX_data_led, LOW); // Verinin Bittiğini Belirten Led
   }
-  byte binaryData_1 = 0;
-  binaryData_1 |= bit0;
-  binaryData_1 |= bit1 << 1;
-  binaryData_1 |= bit2 << 2;
-  binaryData_1 |= bit3 << 3;
-  binaryData_1 |= bit4 << 4;
-  binaryData_1 |= bit5 << 5;
-  binaryData_1 |= bit6 << 6;
-  binaryData_1 |= bit7 << 7;
-  byte binaryData_2 = 0;
-  binaryData_2 |= bit8;
-  binaryData_2 |= bit9 << 1;
-  binaryData_2 |= bit10 << 2;
-  binaryData_2 |= bit11 << 3;
-  binaryData_2 |= bit12 << 4;
-  binaryData_2 |= bit13 << 5;
-  binaryData_2 |= bit14 << 6;
-  binaryData_2 |= bit15 << 7;
-  byte binaryData_3 = 0;
-  binaryData_3 |= bit16;
-  binaryData_3 |= bit17 << 1;
-  binaryData_3 |= bit18 << 2;
-  binaryData_3 |= bit19 << 3;
-  binaryData_3 |= bit20 << 4;
-  binaryData_3 |= bit21 << 5;
-  binaryData_3 |= bit22 << 6;
-  binaryData_3 |= bit23 << 7;
-  //* Mainboard'a Gönderilen Veri
-  Serial.write(68);
-  Serial.write(84);
-  Serial.write(89);
-  Serial.write(binaryData_1);
-  Serial.write(binaryData_2);
-  Serial.write(binaryData_3);
+  else
+  {
+    if (currentMillis - ISR2_evvelkiMILLIS >= ISR2_Zaman)
+    {
+      rf_data("0"); // Gelen Veriyi Void'e Aktar
+    }
+  }
+  /**************************************************************/
+  if (currentMillis - ISR1_evvelkiMILLIS >= ISR1_Zaman) // Zamanlayıcı
+  {
+    ISR1_evvelkiMILLIS = currentMillis;
+
+    byte binaryData_1 = 0;
+    binaryData_1 |= bit0;
+    binaryData_1 |= bit1 << 1;
+    binaryData_1 |= bit2 << 2;
+    binaryData_1 |= bit3 << 3;
+    binaryData_1 |= bit4 << 4;
+    binaryData_1 |= bit5 << 5;
+    binaryData_1 |= bit6 << 6;
+    binaryData_1 |= bit7 << 7;
+    byte binaryData_2 = 0;
+    binaryData_2 |= bit8;
+    binaryData_2 |= bit9 << 1;
+    binaryData_2 |= bit10 << 2;
+    binaryData_2 |= bit11 << 3;
+    binaryData_2 |= bit12 << 4;
+    binaryData_2 |= bit13 << 5;
+    binaryData_2 |= bit14 << 6;
+    binaryData_2 |= bit15 << 7;
+
+    //* Mainboard'a Gönderilen Veri
+    Serial.write(68);
+    Serial.write(84);
+    Serial.write(89);
+    Serial.write(binaryData_1);
+    Serial.write(binaryData_2);
+  }
 
   wdt_reset(); // watchdog Yenile (Aksi Halde 2sn içinye resset çeker)
-
-  delay(59); // Bekleme Süresi (Değiştirilebilir)
 }

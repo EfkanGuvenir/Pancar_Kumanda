@@ -88,6 +88,7 @@ void loop()
         }
         if (sokum_aktif == true)
         {
+            bit13 = true;
         }
         if (lamba_aktif == true)
         {
@@ -123,22 +124,22 @@ void loop()
             break;
 
         case '6': //* Boşalt Çalıştır
-
+            bit5 = true;
             digitalWrite(led_2, HIGH);
             break;
 
         case '5': //* Boşalt Durdur
-
+            bit6 = true;
             digitalWrite(led_2, HIGH);
             break;
 
         case '9': //*Söküm Aşağı
-            bit9 = true;
+            bit3 = true;
             digitalWrite(led_2, HIGH);
             break;
 
         case '3': //*Söküm Yukarı
-            bit10 = true;
+            bit4 = true;
             digitalWrite(led_2, HIGH);
             break;
 
@@ -153,27 +154,27 @@ void loop()
             break;
 
         case 'B': //* Makina Ters
-
+            bit15 = true;
             digitalWrite(led_2, HIGH);
             break;
 
         case '0': //* Hazırlayıcı Aşağı
-
+            bit10 = true;
             digitalWrite(led_2, HIGH);
             break;
 
         case '#': //* Hazırlayıcı Yukarı
-
+            bit9 = true;
             digitalWrite(led_2, HIGH);
             break;
 
         case '8': //* Depo Kapatma
-
+            bit7 = true;
             digitalWrite(led_2, HIGH);
             break;
 
         case '7': //* Depo Açma
-
+            bit8 = true;
             digitalWrite(led_2, HIGH);
             break;
         case '*': //* Lamba on/off

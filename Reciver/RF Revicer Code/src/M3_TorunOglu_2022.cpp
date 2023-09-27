@@ -1,5 +1,5 @@
 //*---- V1.2  ----*//
-//*----	Model_C ----*//
+//*----	Model_3 ----*//
 
 #include <Arduino.h>     //Arduino Library
 #include <VirtualWire.h> //433RF library

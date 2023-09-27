@@ -1,12 +1,12 @@
 //*---- V1.2  ----*//
-//*----	Model_A ----*//
+//*----	Model_1 ----*//
 
 #include <Arduino.h>
 #include <VirtualWire.h> //433RF library
 #include <avr/wdt.h>     // Watchdog için gerekli kütüphane
 /**************************************************************/
 //* Şifreleme
-uint8_t kimlik_dogrulama_key = 58; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (20-255 Arasında değer olmalı)
+uint8_t kimlik_dogrulama_key = 21; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (20-255 Arasında değer olmalı)
 /**************************************************************/
 //* Pin Out
 const int RF_module_pin = 11; // 433mhz Alıcının Bağlı Olduğu Pin (interrupt olsa iyi olur)
@@ -22,7 +22,7 @@ const int Switch4 = 34;       // Şifreleme Anahtarının 4. biti
 bool yetki = false; // Kumanda Şifrelemede Yetkilendirme Değişkeni
 bool flag = false;  // Tuşa basılı tuttuğu sürece saçmalamaması için
 
-bool bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0;       // Mainboard'a Gidecek Birinci Veri
+bool bit7, bit6, bit4, bit5, bit3, bit2, bit1, bit0;       // Mainboard'a Gidecek Birinci Veri
 bool bit15, bit14, bit13, bit12, bit11, bit10, bit9, bit8; // Mainboard'a Gidecek  İkinci Veri
 /**************************************************************/
 //* ON OFF Sistem için
@@ -45,6 +45,7 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
     bit0 = false, bit1 = false, bit2 = false, bit3 = false, bit4 = false, bit5 = false, bit6 = false, bit7 = false;
     bit8 = false, bit9 = false, bit10 = false, bit11 = false, bit12 = false, bit13 = false, bit14 = false, bit15 = false;
     flag = false; // Flag'ı Pasifleştir
+
     if (otomatik_aktif == true)
     {
       bit0 = true;
@@ -62,34 +63,19 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
   {
     if (data == "1") //* Otomatik
     {
-      if (otomatik_aktif) // Otomatik Aktif ise
-      {
+      if (otomatik_aktif)       // Otomatik Aktif ise
         otomatik_aktif = false; // Otomatiği Kapat
-        bit0 = false;           // Otomatiği Kapat
-        digitalWrite(otomatik_led, LOW);
-      }
-      else // Otomatik Aktif Değilse
-      {
+      else                      // Otomatik Aktif Değilse
         otomatik_aktif = true;
-        bit0 = true;
-        digitalWrite(otomatik_led, HIGH);
-      }
     }
 
     if (data == "2") //* Söküm
     {
       if (sokum_aktif)
-      {
         sokum_aktif = false;
-        bit13 = false;
-        digitalWrite(sokum_led, LOW);
-      }
+
       else
-      {
         sokum_aktif = true;
-        bit13 = true;
-        digitalWrite(sokum_led, HIGH);
-      }
     }
 
     if (data == "15") //* Lamba
@@ -112,10 +98,10 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
       bit1 = true;
 
     if (data == "7") //* Depo Yukarı
-      bit8 = true;
+      bit3 = true;
 
     if (data == "8") //* Depo Aşağı
-      bit7 = true;
+      bit4 = true;
 
     if (data == "9") //* Hazırlayıcı Yukarı
       bit11 = true;
@@ -133,13 +119,10 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
       bit5 = true;
 
     if (data == "14") //* Boşalt Durdur
-    {
-      // todo BoşaltDurdur bırakıldığında boşaltma devreye tekrar girdiğinden bir kod daha gönderiyor
-      bit6 = true; // Sistem Geri
-      bit4 = true; // Bosalt DurDur Kodu
-    }
-    if (data == "16") //* Sistem Geri
       bit6 = true;
+    if (data == "16") //* Sistem Geri
+    {
+    }
 
     flag = true; // Flag'ı Etkinleştir
   }

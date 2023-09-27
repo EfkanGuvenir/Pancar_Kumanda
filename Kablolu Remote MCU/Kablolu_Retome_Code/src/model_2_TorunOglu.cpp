@@ -1,5 +1,7 @@
 //*---- T(kablolu) Kumanda MCU V1.2----*//
 //*---- Model_2 Kumandalara Uygundur----*//
+//*---- TorunOğlu ----*//
+
 /**************************************************************/
 #include <Arduino.h>
 #include <Keypad2.h> // Matrix button library
@@ -83,16 +85,12 @@ void loop()
         bit8 = false, bit9 = false, bit10 = false, bit11 = false, bit12 = false, bit13 = false, bit14 = false, bit15 = false;
 
         if (otomatik_aktif == true)
-        {
             bit0 = true;
-        }
         if (sokum_aktif == true)
-        {
             bit13 = true;
-        }
         if (lamba_aktif == true)
-        {
-        }
+            bit11 = true;
+
         digitalWrite(led_2, LOW);
     }
     /**************************************************************/
@@ -186,7 +184,7 @@ void loop()
             }
             break;
         case '4': //* Flaş
-
+            bit12 = true;
             digitalWrite(led_2, HIGH);
             break;
         }

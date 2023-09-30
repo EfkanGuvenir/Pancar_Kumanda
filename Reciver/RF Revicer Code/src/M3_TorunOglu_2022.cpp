@@ -58,29 +58,17 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
   {
     if (data == "1") //* Otomatik ON/OFF
     {
-      if (otomatik_aktif) // Otomatik Aktif ise
-      {
+      if (otomatik_aktif)       // Otomatik Aktif ise
         otomatik_aktif = false; // Otomatiği Kapat
-        bit0 = false;           // Otomatiği Kapat
-      }
-      else // Otomatik Aktif Değilse
-      {
+      else                      // Otomatik Aktif Değilse
         otomatik_aktif = true;
-        bit0 = true;
-      }
     }
     if (data == "2") //* Makina ON/OFF
     {
-      if (makina_aktif) // Makina Aktif ise
-      {
+      if (makina_aktif)       // Makina Aktif ise
         makina_aktif = false; // Makina Kapat
-        bit6 = false;         // Makina Kapat
-      }
-      else // Makina Aktif Değilse
-      {
+      else                    // Makina Aktif Değilse
         makina_aktif = true;
-        bit6 = true;
-      }
     }
     if (data == "13") //* Depo ON/OFF
     {

@@ -58,12 +58,12 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
 
   if ((flag == false) && (data != "0")) // işlemler birdan fazla yapılmaması için
   {
-    if (data == "1") //* Otomatik
+    if (data == "2") //* Otomatik
     {
       otomatik_aktif = false; // Otomatiği Kapat
       digitalWrite(otomatik_led, LOW);
     }
-    if (data == "2") //* Manuel
+    if (data == "1") //* Manuel
     {
       otomatik_aktif = true;
       digitalWrite(otomatik_led, HIGH);

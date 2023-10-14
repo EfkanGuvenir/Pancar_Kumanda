@@ -77,7 +77,6 @@ void rf_data(String data) //* Gelen Datanın Ayıklanması
         depo_aktif = false; // depo Kapat
         bit5 = false;       // depo Kapat
         bit6 = true;        // Makina Ters
-        bit4 = true;        // Boşalt Durdur
       }
       else // depo Aktif Değilse
       {

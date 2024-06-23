@@ -1,38 +1,35 @@
-//*---- T-DRK01 V1.3  ----*//
+//*---- T-DRK02 V1.0  ----*//
 
 #include <Arduino.h>
-#include <Keypad2.h> //matrix button library
 #include <avr/sleep.h>
 #include <avr/power.h>
-#include <VirtualWire.h> //433RF library
+#include <util/delay.h>
+#include <Keypad2.h> //matrix button library
+#include <SPI.h>     //NRF24 modülü için
+#include <RF24.h>    //NRF24 modülü için
 
-//* Şifreleme
-uint8_t kimlik_dogrulama_key = 20; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (20-255 Arasında değer olmalı)
+//* NRF Şifrelemesi
+const byte address[6] = "00001"; // Gönderici ve alıcı arasındaki aynı adres
 
 const byte ROWS = 4;
 const byte COLS = 4;
 
 char keys[ROWS][COLS] =
     {
-        {'1', '2', '3', 'A'},
-        {'4', '5', '6', 'B'},
-        {'7', '8', '9', 'C'},
-        {'*', '0', '#', 'D'},
+        // 2   3    4    5
+        {'A', 'B', 'C', 'D'}, // 6
+        {'E', 'F', 'G', 'H'}, // 7
+        {'I', 'J', 'K', 'L'}, // 8
+        {'M', 'N', 'O', 'P'}, // 9
 };
 
 byte rowPins[ROWS] = {6, 7, 8, 9}; // connect to the row pinouts of the keypad
 byte colPins[COLS] = {2, 3, 4, 5}; // connect to the column pinouts of the keypad
+RF24 radio(A0, A1);                // CE, CSN pins
+const int led = A3;
 
 // number of items in an array
 #define NUMITEMS(arg) ((unsigned int)(sizeof(arg) / sizeof(arg[0])))
-
-// Pin Giriş/Çıkışları
-const int rf_data = 10;  // Transmitter Veri Pin'i
-const int rf_power = 13; // Transmitter Güç Pin'i
-
-//* Değişkenler
-uint8_t press_button;     // Buttona basılınca gönderilecek kodun değişkeni
-bool button_flag = false; // buttonun basılıp bırakıldığını algılacak değişken
 
 // Tuş Takımı Oluşturuluyor
 Keypad kpd = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
@@ -73,6 +70,8 @@ void reconfigurePins()
 
 void goToSleep()
 {
+  radio.powerDown(); // NRF Modülünü Uyut
+
   byte i;
 
   // set up to detect a keypress
@@ -80,7 +79,7 @@ void goToSleep()
   {
     pinMode(colPins[i], OUTPUT);
     digitalWrite(colPins[i], LOW); // columns low
-  }                                // end of for each column
+  } // end of for each column
 
   for (i = 0; i < NUMITEMS(rowPins); i++)
   {
@@ -95,10 +94,10 @@ void goToSleep()
       reconfigurePins();
       return;
     } // end of a pin pressed
-  }   // end of for each row
+  } // end of for each row
 
   // overcome any debounce delays built into the keypad library
-  delay(50);
+  _delay_ms(50);
 
   // at this point, pressing a key should connect the high in the row to the
   // to the low in the column and trigger a pin change
@@ -132,15 +131,20 @@ void goToSleep()
 
 void setup()
 {
-  vw_set_tx_pin(rf_data);    // Vericinin Pin'i Ayrlanıyor
-  vw_setup(2000);            // bps - Vericinin hızı
-  pinMode(rf_power, OUTPUT); // Pin Çıkış Olarak Ayarlanır
+  pinMode(led, OUTPUT); // Pin Çıkış Olarak Ayarlanır
+
+  radio.begin();
+  radio.openWritingPipe(address);
+  radio.setPALevel(RF24_PA_MAX);   // Güç Seviyesi Maksimum'a Ayarlı
+  radio.setDataRate(RF24_250KBPS); // Veri Hızı Ayarı
+  radio.stopListening();
   /**************************************************************/
   // pin change interrupt
   PCMSK2 |= bit(PCINT22); // pin 6
   PCMSK2 |= bit(PCINT23); // pin 7
   PCMSK0 |= bit(PCINT0);  // pin 8
   PCMSK0 |= bit(PCINT1);  // pin 9
+
   goToSleep();
 }
 
@@ -150,85 +154,24 @@ void loop()
   /**************************************************************/
   if (kpd.getState() == RELEASED) // Button Bırakıldığını Algılar
   {
-    digitalWrite(rf_power, HIGH);
-    button_flag = false; // Buttona
-    delayMicroseconds(50);
-    for (int i = 0; i < 2; i++)
-    {
-      uint8_t shexData[] = {kimlik_dogrulama_key, 0}; // Gönderilecek hex kodunu temsil eden bayt dizisi
-      vw_send(shexData, sizeof(shexData));
-      vw_wait_tx(); // Wait until the whole message is gone
-      delayMicroseconds(500);
-    }
-    digitalWrite(rf_power, LOW);
+    digitalWrite(led, LOW);
+    radio.powerUp(); // NRF Modülünü Uyandır
+    _delay_ms(2);    // NRF Modülünün Açılması için gereken Süre
+    const char data[] = "0";
+    radio.write(&data, sizeof(data));
+    _delay_ms(2);
     goToSleep();
-    return;
-  }
-  /**************************************************************/
-  switch (key) // Basılan tuş için ayarlama yap
-  {
-  case '0': // sayaca 0 ise
-    press_button = 16;
-    break; // swtich den çık
-  case '1':
-    press_button = 1;
-    break;
-  case '2':
-    press_button = 6;
-    break;
-  case '3':
-    press_button = 7;
-    break;
-  case '4':
-    press_button = 3;
-    break;
-  case '5':
-    press_button = 4;
-    break;
-  case '6':
-    press_button = 11;
-    break;
-  case '7':
-    press_button = 2;
-    break;
-  case '8':
-    press_button = 17;
-    break;
-  case '9':
-    press_button = 8;
-    break;
-  case 'A':
-    press_button = 9;
-    break;
-  case 'B':
-    press_button = 12;
-    break;
-  case 'C':
-    press_button = 13;
-    break;
-  case 'D':
-    press_button = 10;
-    break;
-  case '*':
-    press_button = 14;
-    break;
-  case '#':
-    press_button = 15;
-    break;
   }
   /**************************************************************/
   if (key)
   {
-    digitalWrite(rf_power, HIGH);
-    button_flag = true;
-    delayMicroseconds(50);
-  }
-  /**************************************************************/
-  if (button_flag == true) // buttona basılmışsa
-  {
-    uint8_t hexData[] = {kimlik_dogrulama_key, press_button}; // Gönderilecek hex kodunu temsil eden bayt dizisi
-    vw_send(hexData, sizeof(hexData));
-    vw_wait_tx(); // Wait until the whole message is gone
-    delayMicroseconds(500);
+    digitalWrite(led, HIGH);
+    radio.powerUp(); // NRF Modülünü Uyandır
+    _delay_ms(2);    // NRF Modülünün Açılması için gereken Süre
+    bool success = radio.write(&key, sizeof(key));
+    if (success)
+    {
+      radio.powerDown(); // NRF Modülünü Uyut
+    }
   }
 }

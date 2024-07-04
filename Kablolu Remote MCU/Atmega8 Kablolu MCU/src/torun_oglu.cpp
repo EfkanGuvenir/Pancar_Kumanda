@@ -1,6 +1,6 @@
-//*---- T(kablolu) Kumanda MCU V1.2  ----*//
-//*---- Model_4 Kumandalara Uygundur----*//
-//*---- bit6 (4. Bit 64) sürekli Aktif.  ----*//
+//*---- T(kablolu) Kumanda MCU Atmega8 V1.0----*//
+//*---- Model_2 Kumandalara Uygundur----*//
+//*---- TorunOğlu ----*//
 
 /**************************************************************/
 #include <Arduino.h>
@@ -10,36 +10,35 @@
 //* Tuş Takımı Oluşturuluyor
 const byte ROWS = 4;
 const byte COLS = 4;
+
 char keys[ROWS][COLS] =
     {
-        {'1', '2', '3', 'A'},
-        {'4', '5', '6', 'B'},
-        {'7', '8', '9', 'C'},
-        {'*', '0', '#', 'D'},
+        // 2   3    4    5
+        {'A', 'B', 'C', 'D'}, // 6
+        {'E', 'F', 'G', 'H'}, // 7
+        {'I', 'J', 'K', 'L'}, // 8
+        {'M', 'N', 'O', 'P'}, // 9
 };
 
-byte rowPins[ROWS] = {15, 16, 17, 18}; // connect to the row pinouts of the keypad
-byte colPins[COLS] = {11, 12, 13, 14}; // connect to the column pinouts of the keypad
+byte rowPins[ROWS] = {6, 7, 8, 9}; // connect to the row pinouts of the keypad
+byte colPins[COLS] = {2, 3, 4, 5}; // connect to the column pinouts of the keypad
 
 Keypad kpd = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 /**************************************************************/
 //* Pin Out
-const int led_1 = 22; // RF'den Gelen Veri Olduğunda Bildirilecek led
-const int led_2 = 20; // Söküm Sisteme Girdiğinde bildirim  ışığı
-const int led_3 = 21; // Otomatik Söküm Sisteme Girdiğinde bildirim ışığı
+const int led_1 = A4; // RF'den Gelen Veri Olduğunda Bildirilecek led
+const int led_2 = A5; // Söküm Sisteme Girdiğinde bildirim  ışığı
+const int led_3 = A3; // Otomatik Söküm Sisteme Girdiğinde bildirim ışığı
 /**************************************************************/
 //* ON OFF Sistem için
-bool otomatik_aktif = false; // On-Off İçin Değişlen
-bool sokum_aktif = false;    // On-Off İçin Değişlen
-bool depo_aktif = false;     // On-Off İçin Değişlen
+bool sokum_aktif = false; // On-Off İçin Değişlen
+bool lamba_aktif = false; // On-Off İçin Değişlen
 /**************************************************************/
 //* Değişkenler
 bool button_flag; // Button yanlış basılmaların önüne geçer
-bool bit6 = true; // Kumanda Sabit 64 Gönderiyorsa Bu onun için
 
-bool bit7, bit5, bit4, bit3, bit2, bit1, bit0;             // Mainboard'a Gidecek Birinci Veri
+bool bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0;       // Mainboard'a Gidecek Birinci Veri
 bool bit15, bit14, bit13, bit12, bit11, bit10, bit9, bit8; // Mainboard'a Gidecek  İkinci Veri
-
 /**************************************************************/
 //* Zamanlama
 unsigned long ISR1_Zaman = 50;    // Veriyi Gönderecek Süre
@@ -51,18 +50,22 @@ unsigned long debounceDelay = 100; // On Off Tuşlar için Yanlış Basımın Ö
 void setup()
 {
     Serial.begin(1200); // Seri Monitör
+    wdt_disable();      // Watchdog'u devre dışı bırakın ve 2 saniyeden fazla bekleyin
     /**************************************************************/
     pinMode(led_1, OUTPUT); // Pin'i Çıkış Olarak Belirle
     pinMode(led_2, OUTPUT); // Valf İçin Kullanılan Led
     pinMode(led_3, OUTPUT); // Pin'i Çıkış Olarak Belirle
 
     digitalWrite(led_1, HIGH);
+    delay(1000);
+    digitalWrite(led_2, HIGH);
+    delay(1000);
+    digitalWrite(led_3, HIGH);
+    delay(1000);
+    digitalWrite(led_1, LOW);
     digitalWrite(led_2, LOW);
-    digitalWrite(led_3, LOW);
     /**************************************************************/
     //* watchdog
-    wdt_disable();       // Watchdog'u devre dışı bırakın ve 2 saniyeden fazla bekleyin
-    delay(3000);         // Yanlış yapılandırma durumunda Arduino'nun sonsuza kadar sıfırlanmaya devam etmemesi için yapıldı
     wdt_enable(WDTO_2S); // 2 saniyelik bir zaman aşımı ile bekçi köpeğini etkinleştir
     /**************************************************************/
 }
@@ -82,110 +85,83 @@ void loop()
     /**************************************************************/
     if (kpd.getState() == RELEASED) // Tuş Bırakıldığında
     {
-        bit6 = true; // Kumanda Sabit 64 Gönderiyorsa Bu onun için
-        bit0 = false, bit1 = false, bit2 = false, bit3 = false, bit4 = false, bit5 = false, bit7 = false;
-        bit8 = false, bit9 = false, bit10 = false, bit11 = false, bit12 = false, bit13 = false, bit14 = false, bit15 = false;
-
-        if (otomatik_aktif == true)
-        {
-            bit0 = true;
-        }
-        if (sokum_aktif == true)
-        {
-            bit13 = true;
-        }
-        if (depo_aktif == true)
-        {
-            bit6 = false;
-            bit5 = true;
-        }
         digitalWrite(led_2, LOW);
+        bit1 = false, bit2 = false, bit3 = false, bit4 = false, bit5 = false, bit6 = false, bit7 = false;
+        bit8 = false, bit9 = false, bit10 = false, bit12 = false, bit14 = false, bit15 = false;
     }
     /**************************************************************/
     if (key != NO_KEY) // Tuşa Basıldığında
     {
+        digitalWrite(led_2, HIGH);
         switch (key)
         {
-        case 'A': //* Otomatik
-            digitalWrite(led_2, HIGH);
-            otomatik_aktif = true; // Otomatiği Kapat
+        case 'A': // OK Sağ
+            bit2 = true;
+            break;
+        case 'B': // Manuel
             digitalWrite(led_1, LOW);
             digitalWrite(led_3, HIGH);
-            break; // swtich den çık
-        case '2':  //* Manuel
-            digitalWrite(led_2, HIGH);
-            otomatik_aktif = false;
+            bit0 = false;
+            break;
+        case 'C': // OK Yukarı
+            bit4 = true;
+            break;
+        case 'D': // Otomatik
             digitalWrite(led_3, LOW);
             digitalWrite(led_1, HIGH);
+            bit0 = true;
             break;
-        case 'D': //* Söküm
-            digitalWrite(led_2, HIGH);
-            if (button_flag == false)
-            {
-                button_flag = true;
-                sokum_aktif = !sokum_aktif;
-            }
+        case 'E': // Flaş
+            bit12 = true;
             break;
-        case '0':
-            bit10 = true;
-            digitalWrite(led_2, HIGH);
+        case 'F': // Boşaltma Durdur
+            bit6 = true;
             break;
-        case '1':
-            bit2 = true;
-            digitalWrite(led_2, HIGH);
+        case 'G': // Başaltma Çalış
+            bit5 = true;
             break;
-        case '3':
-            bit4 = true;
-            digitalWrite(led_2, HIGH);
-            break;
-        case '4':
-            digitalWrite(led_2, HIGH);
-            break;
-        case '5':
-            digitalWrite(led_2, HIGH);
-            break;
-        case '6':
-            digitalWrite(led_2, HIGH);
-            break;
-        case '7':
-            bit8 = true;
-            digitalWrite(led_2, HIGH);
-            break;
-        case '8':
-            bit7 = true;
-            digitalWrite(led_2, HIGH);
-            break;
-        case '9':
-            bit3 = true;
-            digitalWrite(led_2, HIGH);
-            break;
-        case 'B':
+        case 'H': // Geri
             bit15 = true;
-            digitalWrite(led_2, HIGH);
             break;
-        case 'C':
+        case 'I': // Depo Açma
+            bit8 = true;
+            break;
+        case 'J': // Depo Kapatma
+            bit7 = true;
+            break;
+        case 'K': // OK Aşağı
+            bit3 = true;
+            break;
+        case 'L': // OK Sol
             bit1 = true;
-            digitalWrite(led_2, HIGH);
             break;
-        case '#':
-            bit9 = true;
-            digitalWrite(led_2, HIGH);
-            break;
-        case '*':
-            if (depo_aktif == false)
-            {
-                depo_aktif = true;
-                digitalWrite(led_2, HIGH);
-            }
+        case 'M': // Lamba
+            button_flag = true;
+            lamba_aktif = !lamba_aktif;
+            delay(50);
+            if (lamba_aktif == true)
+                bit11 = true;
             else
-            {
-                depo_aktif = false;
-                digitalWrite(led_2, HIGH);
-            }
+                bit11 = false;
+            break;
+        case 'N': // Hazırlayıcı Aşağı
+            bit10 = true;
+            break;
+        case 'O': // Hazırlayıcı Yukarı
+            bit9 = true;
+            break;
+        case 'P': // Söküm ON/OFF
+            button_flag = true;
+            sokum_aktif = !sokum_aktif;
+            delay(50);
+            if (sokum_aktif == true)
+                bit13 = true;
+            else
+                bit13 = false;
             break;
         }
-        lastDebounceTime = millis(); // Tuşa Basım Zamanlayıcısını Sıfırla
     }
+
     /**************************************************************/
     // todo Mainboard'a Gönderilecek Veriler
     if (currentMillis - ISR1_evvelkiMILLIS >= ISR1_Zaman) // Zamanlayıcı

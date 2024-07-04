@@ -25,8 +25,8 @@ char keys[ROWS][COLS] =
 
 byte rowPins[ROWS] = {6, 7, 8, 9}; // connect to the row pinouts of the keypad
 byte colPins[COLS] = {2, 3, 4, 5}; // connect to the column pinouts of the keypad
-RF24 radio(A0, A1);                // CE, CSN pins
-const int led = A3;
+RF24 radio(A1, A0);                // CE, CSN pins
+const int led = 1;
 
 // number of items in an array
 #define NUMITEMS(arg) ((unsigned int)(sizeof(arg) / sizeof(arg[0])))

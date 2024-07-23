@@ -1,3 +1,0 @@
-MCU: ATTINY2312A @DIP20 
-2012 Modelin Alındı.
-Birçok Modele Uyar.

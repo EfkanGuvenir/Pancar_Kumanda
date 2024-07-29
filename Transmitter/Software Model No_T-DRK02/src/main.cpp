@@ -16,11 +16,11 @@ const byte COLS = 4;
 
 char keys[ROWS][COLS] =
     {
-        // 2   3    4    5
-        {'A', 'B', 'C', 'D'}, // 6
-        {'E', 'F', 'G', 'H'}, // 7
-        {'I', 'J', 'K', 'L'}, // 8
-        {'M', 'N', 'O', 'P'}, // 9
+        // 5   4    3    2
+        {'A', 'B', 'C', 'D'}, // 9
+        {'E', 'F', 'G', 'H'}, // 8
+        {'I', 'J', 'K', 'L'}, // 7
+        {'M', 'N', 'O', 'P'}, // 6
 };
 
 byte rowPins[ROWS] = {6, 7, 8, 9}; // connect to the row pinouts of the keypad

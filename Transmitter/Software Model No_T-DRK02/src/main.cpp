@@ -9,7 +9,7 @@
 #include <RF24.h>    //NRF24 modülü için
 
 //* NRF Şifrelemesi
-const byte address[6] = "00001"; // Gönderici ve alıcı arasındaki aynı adres
+const byte address[6] = "00002"; // Gönderici ve alıcı arasındaki aynı adres
 
 const byte ROWS = 4;
 const byte COLS = 4;
@@ -27,6 +27,13 @@ byte rowPins[ROWS] = {6, 7, 8, 9}; // connect to the row pinouts of the keypad
 byte colPins[COLS] = {2, 3, 4, 5}; // connect to the column pinouts of the keypad
 RF24 radio(A1, A0);                // CE, CSN pins
 const int led = 1;
+
+// Değişkenler
+bool button_flag; // buttonun basılıp bırakıldığını algılacak değişken
+// Zamanlama Değişkenleri
+unsigned long previousMillis = 0; // Son millis() zamanını tutar
+const long interval = 50;         // 1 saniyelik aralık
+int count = 1;                    // Geri sayım başlangıcı
 
 // number of items in an array
 #define NUMITEMS(arg) ((unsigned int)(sizeof(arg) / sizeof(arg[0])))
@@ -150,28 +157,50 @@ void setup()
 
 void loop()
 {
+  /**************************************************************/
   char key = kpd.getKey(); // Basılı olan tuşu al
   /**************************************************************/
   if (kpd.getState() == RELEASED) // Button Bırakıldığını Algılar
   {
+    button_flag = false;
     digitalWrite(led, LOW);
     radio.powerUp(); // NRF Modülünü Uyandır
     _delay_ms(2);    // NRF Modülünün Açılması için gereken Süre
     const char data[] = "0";
-    radio.write(&data, sizeof(data));
-    _delay_ms(2);
+    bool success = radio.write(&data, sizeof(data));
+    if (success)
+      radio.powerDown(); // NRF Modülünü Uyut
     goToSleep();
   }
   /**************************************************************/
-  if (key)
+  if (key) // Buttona Basıldığı AN
   {
     digitalWrite(led, HIGH);
+    button_flag = true;
     radio.powerUp(); // NRF Modülünü Uyandır
     _delay_ms(2);    // NRF Modülünün Açılması için gereken Süre
     bool success = radio.write(&key, sizeof(key));
     if (success)
-    {
       radio.powerDown(); // NRF Modülünü Uyut
+    count = 10;          // Geri sayımı sıfırla
+  }
+  /**************************************************************/
+  if (button_flag == true) // buttona Basılı Tutulunca
+  {
+    if (millis() - previousMillis >= interval)
+    {
+      previousMillis = millis(); // Zamanı güncelle
+      count--;                   // Geri sayım değerini azalt
+      if (count < 0)
+      {
+        radio.powerUp(); // NRF Modülünü Uyandır
+        _delay_ms(2);    // NRF Modülünün Açılması için gereken Süre
+        bool success = radio.write(&key, sizeof(key));
+        if (success)
+          radio.powerDown(); // NRF Modülünü Uyut
+        count = 10;          // Geri sayımı sıfırla
+      }
     }
   }
+  /**************************************************************/
 }

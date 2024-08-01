@@ -7,7 +7,7 @@
 #include <RF24.h>    //NRF24 modülü için
 
 //* NRF Şifrelemesi
-const byte address[6] = "00001"; // Gönderici ve alıcı arasındaki aynı adres
+const byte address[6] = "00002"; // Gönderici ve alıcı arasındaki aynı adres
 
 const int led = 10;
 RF24 radio(A1, A0); // CE, CSN pins
@@ -69,40 +69,40 @@ void key(char key_data)
     case 'D':
 
       break;
-    case 'E':
-      bit9 = true;
+    case 'E': // Hazırlayıcı Yukarı
+
       break;
-    case 'F':
+    case 'F': // Depo
       depo_aktif = !depo_aktif;
       break;
-    case 'G':
-      bit1 = true;
+    case 'G': // OK Sol
+
       break;
-    case 'H':
+    case 'H': // Otomatik
       otomatik_aktif = !otomatik_aktif;
       break;
-    case 'I':
-      bit10 = true;
-      break;
-    case 'J':
+    case 'I': // Hazırlayıcı Aşağı
 
       break;
-    case 'K':
-      bit3 = true;
-      break;
-    case 'L':
-      bit4 = true;
-      break;
-    case 'M':
+    case 'J': // Kırma Açık
 
       break;
-    case 'N':
-      bit15 = true;
+    case 'K': // OK Aşağı
+
       break;
-    case 'O':
-      bit2 = true;
+    case 'L': // OK Yukarı
+
       break;
-    case 'P':
+    case 'M': // Makina Ters
+
+      break;
+    case 'N': // Kırma Kapalı
+
+      break;
+    case 'O': // Ok Sağ
+
+      break;
+    case 'P': // Makina
       makina_aktif = !makina_aktif;
       break;
     }
@@ -136,40 +136,39 @@ void loop()
     digitalWrite(led, HIGH);         // Veri Geldiğini Belirtir
     char text;                       // Gelen veriyi saklayacak değişken
     radio.read(&text, sizeof(text)); // Gelen Veri Okunur
-    // key(text);                       // Gelen Veri Void Bloğuna Aktarılır
-    Serial.println(text);
+    key(text);                       // Gelen Veri Void Bloğuna Aktarılır
   }
-  /*
-    if (currentMillis - ISR1_evvelkiMILLIS >= ISR1_Zaman) // Zamanlayıcı
-    {
-      ISR1_evvelkiMILLIS = currentMillis;
 
-      byte binaryData_1 = 0;
-      binaryData_1 |= bit0;
-      binaryData_1 |= bit1 << 1;
-      binaryData_1 |= bit2 << 2;
-      binaryData_1 |= bit3 << 3;
-      binaryData_1 |= bit4 << 4;
-      binaryData_1 |= bit5 << 5;
-      binaryData_1 |= bit6 << 6;
-      binaryData_1 |= bit7 << 7;
-      byte binaryData_2 = 0;
-      binaryData_2 |= bit8;
-      binaryData_2 |= bit9 << 1;
-      binaryData_2 |= bit10 << 2;
-      binaryData_2 |= bit11 << 3;
-      binaryData_2 |= bit12 << 4;
-      binaryData_2 |= bit13 << 5;
-      binaryData_2 |= bit14 << 6;
-      binaryData_2 |= bit15 << 7;
+  if (currentMillis - ISR1_evvelkiMILLIS >= ISR1_Zaman) // Zamanlayıcı
+  {
+    ISR1_evvelkiMILLIS = currentMillis;
 
-      //* Mainboard'a Gönderilen Veri
-      Serial.write(68);
-      Serial.write(84);
-      Serial.write(89);
-      Serial.write(binaryData_1);
-      Serial.write(binaryData_2);
-    }
-  */
+    byte binaryData_1 = 0;
+    binaryData_1 |= bit0;
+    binaryData_1 |= bit1 << 1;
+    binaryData_1 |= bit2 << 2;
+    binaryData_1 |= bit3 << 3;
+    binaryData_1 |= bit4 << 4;
+    binaryData_1 |= bit5 << 5;
+    binaryData_1 |= bit6 << 6;
+    binaryData_1 |= bit7 << 7;
+    byte binaryData_2 = 0;
+    binaryData_2 |= bit8;
+    binaryData_2 |= bit9 << 1;
+    binaryData_2 |= bit10 << 2;
+    binaryData_2 |= bit11 << 3;
+    binaryData_2 |= bit12 << 4;
+    binaryData_2 |= bit13 << 5;
+    binaryData_2 |= bit14 << 6;
+    binaryData_2 |= bit15 << 7;
+
+    //* Mainboard'a Gönderilen Veri
+    Serial.write(68);
+    Serial.write(84);
+    Serial.write(89);
+    Serial.write(binaryData_1);
+    Serial.write(binaryData_2);
+  }
+
   wdt_reset(); // watchdog Yenile (Aksi Halde 2sn içinye resset çeker)
 }

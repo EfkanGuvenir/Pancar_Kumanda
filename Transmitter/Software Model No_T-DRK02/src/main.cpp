@@ -1,4 +1,4 @@
-//*---- T-DRK02 V1.0  ----*//
+//*---- T-DRK02 V1.1  ----*//
 
 #include <Arduino.h>
 #include <avr/sleep.h>

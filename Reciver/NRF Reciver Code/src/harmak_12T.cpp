@@ -16,7 +16,7 @@ RF24 radio(A1, A0); // CE, CSN pins
 bool otomatik_aktif; // On-Off İçin Değişlen
 bool makina_aktif;   // On-Off İçin Değişlen
 bool depo_aktif;     // On-Off İçin Değişlen
-bool flag;           // Tuşa basılı tuttuğu sürece saçmalamaması için
+bool flag = false;   // Tuşa basılı tuttuğu sürece saçmalamaması için
 
 bool bit7, bit6 = true, bit5, bit4, bit3, bit2, bit1, bit0; // Mainboard'a Gidecek Birinci Veri
 bool bit15, bit14, bit13, bit12, bit11, bit10, bit9, bit8;  // Mainboard'a Gidecek  İkinci Veri
@@ -43,77 +43,59 @@ void key(char key_data)
 
     if (otomatik_aktif == true)
       bit0 = true;
-    else
-      bit0 = false;
 
     if (makina_aktif == true)
       bit13 = true;
-    else
-      bit13 = false;
 
     if (depo_aktif == true)
     {
       bit6 = false;
       bit5 = true;
     }
-    else
-      bit5 = false;
   }
 
   if (flag == false) // işlemler birdan fazla yapılmaması için
   {
     switch (key_data)
     {
-    case 'A':
-
-      break;
-    case 'B':
-
-      break;
-    case 'C':
-
-      break;
-    case 'D':
-
-      break;
     case 'E': // Hazırlayıcı Yukarı
-
+      bit9 = true;
       break;
     case 'F': // Depo
       depo_aktif = !depo_aktif;
       break;
     case 'G': // OK Sol
-
+      bit1 = true;
       break;
     case 'H': // Otomatik
       otomatik_aktif = !otomatik_aktif;
       break;
     case 'I': // Hazırlayıcı Aşağı
-
+      bit10 = true;
       break;
     case 'J': // Kırma Açık
-
+      bit8 = true;
       break;
     case 'K': // OK Aşağı
-
+      bit3 = true;
       break;
     case 'L': // OK Yukarı
-
+      bit4 = true;
       break;
     case 'M': // Makina Ters
-
+      bit15 = true;
       break;
     case 'N': // Kırma Kapalı
-
+      bit7 = true;
       break;
     case 'O': // Ok Sağ
-
+      bit2 = true;
       break;
     case 'P': // Makina
       makina_aktif = !makina_aktif;
       break;
+      flag = true; // Flag'ı Etkinleştir
     }
-    flag = true; // Flag'ı Etkinleştir
   }
 }
 

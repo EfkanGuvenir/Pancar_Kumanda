@@ -1,4 +1,4 @@
-//*---- BRS-DRK01 V1.0  ----*//
+//*---- BRS-DRK01 V1.1  ----*//
 
 #include <Arduino.h>
 #include <avr/sleep.h>
@@ -23,6 +23,20 @@ byte colPins[COLS] = {2, 3, 4, 5}; // connect to the column pinouts of the keypa
 const int rf_power = A2;
 const int led = A5;
 char key_degisken = 0;
+
+// todo Datalar
+uint8_t no_tus[] = {245, 166, 170, 106, 153};
+uint8_t ok_sag[] = {245, 166, 85, 85, 85, 89, 89, 153};
+uint8_t ok_sol[] = {245, 166, 85, 85, 85, 86, 86, 153};
+uint8_t ok_kaldir[] = {245, 166, 85, 85, 85, 101, 101, 153};
+uint8_t otomatik[] = {245, 166, 86, 85, 85, 85, 86, 153};
+uint8_t depo_kaldir[] = {245, 166, 85, 85, 89, 85, 89, 153};
+uint8_t depo_indir[] = {245, 166, 85, 85, 101, 85, 101, 153};
+uint8_t depo_bosalt[] = {245, 166, 85, 101, 85, 85, 101, 153};
+uint8_t kapak_ac[] = {245, 166, 85, 86, 85, 85, 86, 153};
+uint8_t kapak_kapat[] = {245, 166, 85, 89, 85, 85, 89, 153};
+uint8_t hazirla_yukari[] = {245, 166, 89, 85, 85, 85, 89, 153};
+uint8_t hazirla_asagi[] = {245, 166, 101, 85, 85, 85, 101, 153};
 
 //* Değişkenler
 uint8_t press_button;     // Buttona basılınca gönderilecek kodun değişkeni
@@ -190,114 +204,37 @@ void loop()
     switch (key_degisken) // Basılan tuş için ayarlama yap
     {
     case 'E': // Hazırlayıcı Yukarı
-      Serial.write(245);
-      Serial.write(166);
-      Serial.write(89);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(89);
-      Serial.write(153);
+      Serial.write(hazirla_yukari, sizeof(hazirla_yukari));
       break;
     case 'F': // Depo Kaldır
-      Serial.write(245);
-      Serial.write(166);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(89);
-      Serial.write(85);
-      Serial.write(89);
-      Serial.write(153);
+      Serial.write(depo_kaldir, sizeof(depo_kaldir));
       break;
     case 'G': // OK Sol
-      Serial.write(245);
-      Serial.write(166);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(86);
-      Serial.write(86);
-      Serial.write(153);
+      Serial.write(ok_sol, sizeof(ok_sol));
       break;
     case 'H': // Boşalt
-      Serial.write(245);
-      Serial.write(166);
-      Serial.write(85);
-      Serial.write(101);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(101);
-      Serial.write(153);
+      Serial.write(depo_bosalt, sizeof(depo_bosalt));
       break;
     case 'I': // Hazırlayıcı Aşağı
-      Serial.write(245);
-      Serial.write(166);
-      Serial.write(101);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(101);
-      Serial.write(153);
+      Serial.write(hazirla_asagi, sizeof(hazirla_asagi));
       break;
     case 'J': // Kapak Aç
-      Serial.write(245);
-      Serial.write(166);
-      Serial.write(85);
-      Serial.write(86);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(86);
-      Serial.write(153);
+      Serial.write(kapak_ac, sizeof(kapak_ac));
       break;
     case 'K': // OK Kaldır
-      Serial.write(245);
-      Serial.write(166);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(101);
-      Serial.write(101);
-      Serial.write(153);
+      Serial.write(ok_kaldir, sizeof(ok_kaldir));
       break;
     case 'L': //  Otomatik
-      Serial.write(245);
-      Serial.write(166);
-      Serial.write(86);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(86);
-      Serial.write(153);
+      Serial.write(otomatik, sizeof(otomatik));
       break;
     case 'M': // Depo İndir
-      Serial.write(245);
-      Serial.write(166);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(101);
-      Serial.write(85);
-      Serial.write(101);
-      Serial.write(153);
+      Serial.write(depo_indir, sizeof(depo_indir));
       break;
     case 'N': // Kapak Kapat
-      Serial.write(245);
-      Serial.write(166);
-      Serial.write(85);
-      Serial.write(89);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(89);
-      Serial.write(153);
+      Serial.write(kapak_kapat, sizeof(kapak_kapat));
       break;
     case 'O': // OK Sağ
-      Serial.write(245);
-      Serial.write(166);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(85);
-      Serial.write(89);
-      Serial.write(89);
-      Serial.write(153);
+      Serial.write(ok_sag, sizeof(ok_sag));
       break;
     case 'P': // Yedek
       Serial.write(0);

@@ -168,12 +168,7 @@ void loop()
     Serial.begin(1200);
     for (int i = 0; i < 2; i++)
     {
-      // todo tuş Bırakıldığında Giden Kod
-      Serial.write(245);
-      Serial.write(166);
-      Serial.write(170);
-      Serial.write(106);
-      Serial.write(153);
+      Serial.write(no_tus, sizeof(no_tus));
 
       Serial.flush(); // seri port üzerinden gönderilen verilerin tamamlanmasını bekler.
     }

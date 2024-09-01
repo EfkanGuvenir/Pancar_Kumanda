@@ -36,22 +36,10 @@ void key(char key_data)
   if (key_data == '0') //* Tuş Bırakıldığında
   {
     digitalWrite(led, LOW);
-    bit0 = false, bit1 = false, bit2 = false, bit3 = false, bit4 = false, bit5 = false, bit6 = true, bit7 = false;
-    bit8 = false, bit9 = false, bit10 = false, bit11 = false, bit12 = false, bit13 = false, bit14 = false, bit15 = false;
+    bit1 = false, bit2 = false, bit3 = false, bit4 = false, bit7 = false;
+    bit8 = false, bit9 = false, bit10 = false, bit11 = false, bit12 = false, bit14 = false, bit15 = false;
     flag = false; // Flag'ı Pasifleştir
     flag_time = false;
-
-    if (otomatik_aktif == true)
-      bit0 = true;
-
-    if (makina_aktif == true)
-      bit13 = true;
-
-    if (depo_aktif == true)
-    {
-      bit6 = false;
-      bit5 = true;
-    }
   }
 
   if (flag == false) // işlemler birdan fazla yapılmaması için
@@ -63,12 +51,26 @@ void key(char key_data)
       break;
     case 'F': // Depo
       depo_aktif = !depo_aktif;
+      if (depo_aktif == true)
+      {
+        bit6 = false;
+        bit5 = true;
+      }
+      else if (depo_aktif == false)
+      {
+        bit5 = false;
+        bit6 = true;
+      }
       break;
     case 'G': // OK Sol
       bit1 = true;
       break;
     case 'H': // Otomatik
       otomatik_aktif = !otomatik_aktif;
+      if (otomatik_aktif == true)
+        bit0 = true;
+      else
+        bit0 = false;
       break;
     case 'I': // Hazırlayıcı Aşağı
       bit10 = true;
@@ -93,6 +95,10 @@ void key(char key_data)
       break;
     case 'P': // Makina
       makina_aktif = !makina_aktif;
+      if (makina_aktif == true)
+        bit13 = true;
+      else
+        bit13 = false;
       break;
       flag = true; // Flag'ı Etkinleştir
     }

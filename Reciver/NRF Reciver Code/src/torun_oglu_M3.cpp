@@ -1,5 +1,6 @@
-//*---- NRF V1.1  ----*//
+//*---- NRF V1.2  ----*//
 //*----	Model_3 ----*//
+//*----	TorunOğlu_12T ----*//
 
 #include <Arduino.h>
 #include <avr/wdt.h> // Watchdog için gerekli kütüphane
@@ -7,7 +8,7 @@
 #include <RF24.h>    //NRF24 modülü için
 
 //* NRF Şifrelemesi
-const byte address[6] = "02048"; // Gönderici ve alıcı arasındaki aynı adres
+const byte address[6] = "00001"; // Gönderici ve alıcı arasındaki aynı adres
 
 const int led = 10;
 RF24 radio(A1, A0); // CE, CSN pins
@@ -25,11 +26,6 @@ bool bit15, bit14, bit13, bit12, bit11, bit10, bit9, bit8; // Mainboard'a Gidece
 // Veri Gönderme
 unsigned long ISR1_Zaman = 50;    // 1.Veriyi Gönderecek Süre
 unsigned long ISR1_evvelkiMILLIS; // 1.Veriyi Gönderecek Süre
-// Kumandadan Sinyal Almadığında
-unsigned long previousMillis = 0; // Son millis() zamanını tutar
-const long interval = 200;        // 2 saniyelik aralık
-int count = 10;                   // Geri sayım başlangıcı
-bool flag_time = true;            // Surekli Sinyal Kesildi yapılmasın diye kullanılan flag
 
 void key(char key_data)
 {
@@ -39,7 +35,6 @@ void key(char key_data)
     bit1 = false, bit2 = false, bit3 = false, bit4 = false, bit6 = false, bit7 = false;
     bit8 = false, bit9 = false, bit10 = false, bit11 = false, bit12 = false, bit14 = false, bit15 = false;
     flag = false; // Flag'ı Pasifleştir
-    flag_time = false;
   }
 
   if (flag == false) // işlemler birdan fazla yapılmaması için
@@ -130,26 +125,10 @@ void loop()
   /**************************************************************/
   if (radio.available()) // Veri Geldiği Algılanırsa
   {
-    flag_time = true;
     digitalWrite(led, HIGH);         // Veri Geldiğini Belirtir
     char text;                       // Gelen veriyi saklayacak değişken
     radio.read(&text, sizeof(text)); // Gelen Veri Okunur
     key(text);                       // Gelen Veri Void Bloğuna Aktarılır
-    count = 10;                      // zamanlayıcıyı sıfırla
-  }
-
-  if (flag_time == true) // Tuş Bırakıldı verisi 1sn boyunca gelmezse
-  {
-    if (currentMillis - previousMillis >= interval)
-    {
-      previousMillis = currentMillis; // Zamanı güncelle
-      count--;                        // Geri sayım değerini bir azalt
-      if (count < 0)
-      {
-        count = 10; // zamanlayıcıyı sıfırla
-        key('0');   // Veri Gelmediğini gönderir
-      }
-    }
   }
 
   if (currentMillis - ISR1_evvelkiMILLIS >= ISR1_Zaman) // Zamanlayıcı

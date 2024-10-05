@@ -1,4 +1,4 @@
-//*---- T-DRK02 V1.2  ----*//
+//*---- T-DRK02 V1.2.1  ----*//
 
 #include <Arduino.h>
 #include <avr/sleep.h>
@@ -173,12 +173,6 @@ void loop()
     if (success) // Göderim başalırı olursa
     {
       radio.powerDown(); // NRF Modülünü Uyut
-    }
-    else
-    {
-      radio.powerDown(); // NRF Modülünü Uyut
-      delay(500);
-      digitalWrite(led, LOW);
     }
   }
 }

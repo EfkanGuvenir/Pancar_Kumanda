@@ -27,11 +27,10 @@
     <CutSetting type="Cut">
         <index Value="1"/>
         <name Value="PCB Mask"/>
-        <minPower Value="2"/>
-        <maxPower Value="2"/>
+        <minPower Value="1"/>
+        <maxPower Value="1"/>
         <maxPower2 Value="20"/>
         <speed Value="8.33333"/>
-        <numPasses Value="2"/>
         <dotSpacing Value="0"/>
         <priority Value="0"/>
         <tabCount Value="1"/>
@@ -42,7 +41,8 @@
         <name Value="C02"/>
         <maxPower Value="100"/>
         <maxPower2 Value="20"/>
-        <speed Value="4.16667"/>
+        <speed Value="8.33333"/>
+        <numPasses Value="10"/>
         <dotSpacing Value="0"/>
         <priority Value="1"/>
         <tabCount Value="1"/>

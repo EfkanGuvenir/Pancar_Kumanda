@@ -1,6 +1,4 @@
-//*---- T-DRK03 V25.0.0  ----*//
-// todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (1-255 Arasında değer olmalı)
-uint8_t sifreleme = 1;
+//*---- T-DRK03 V25.0.1  ----*//
 
 #include <Arduino.h>
 #include <avr/sleep.h>
@@ -8,6 +6,9 @@ uint8_t sifreleme = 1;
 #include <util/delay.h>
 #include <Keypad2.h>     //matrix button library
 #include <VirtualWire.h> //433RF library
+
+// todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (1-255 Arasında değer olmalı)
+uint8_t sifreleme = 1;
 
 const byte ROWS = 4;
 const byte COLS = 4;

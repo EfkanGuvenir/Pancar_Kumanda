@@ -1,4 +1,5 @@
 //*---- R-DRK03 V25.0.0  ----*//
+//*----	Model_3 12T ----*//
 
 #include <Arduino.h>     //Arduino Library
 #include <VirtualWire.h> //433RF library

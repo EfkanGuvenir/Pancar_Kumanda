@@ -9,10 +9,11 @@
 uint8_t kimlik_dogrulama_key = 100; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (100-255 Arasında değer olmalı)
 /**************************************************************/
 //* değişken
-bool yetki = false; // Kumanda Şifrelemede Yetkilendirme Değişkeni
-bool flag = false;  // Tuşa basılı tuttuğu sürece saçmalamaması için
+bool yetki = false;         // Kumanda Şifrelemede Yetkilendirme Değişkeni
+bool flag = false;          // Tuşa basılı tuttuğu sürece saçmalamaması için
+uint8_t onceki_komut = 255; // Önceki komutu saklamak için (255 = başlangıç değeri)
 
-bool bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0;         // Mainboard'a Gidecek Birinci Veri
+bool bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0;       // Mainboard'a Gidecek Birinci Veri
 bool bit15, bit14, bit13, bit12, bit11, bit10, bit9, bit8; // Mainboard'a Gidecek  İkinci Veri
 /**************************************************************/
 //* ON OFF Sistem için
@@ -70,7 +71,7 @@ void rf_data(uint8_t komut) //* Gelen Komutun Ayıklanması
         bit0 = true;
       }
     }
-    
+
     if (komut == 80) //* Makina ON/OFF
     {
       if (makina_aktif) // Makina Aktif ise
@@ -84,7 +85,7 @@ void rf_data(uint8_t komut) //* Gelen Komutun Ayıklanması
         bit13 = true;
       }
     }
-    
+
     if (komut == 70) //* Depo ON/OFF
     {
       if (depo_aktif) // depo Aktif ise
@@ -167,13 +168,19 @@ void loop()
       uint8_t sifre_int = buf[0];            // İlk byte: kimlik doğrulama
       if (sifre_int == kimlik_dogrulama_key) // Yetkiyi Sorgula
       {
-        uint8_t komut = buf[1];      // İkinci byte: komut
-        rf_data(komut); // Komutu rf_data'ya gönder
+        uint8_t komut = buf[1]; // İkinci byte: komut
+        // Ard arda gelen aynı komutları filtrele
+        if (komut != onceki_komut)
+        {
+          rf_data(komut);       // Komutu rf_data'ya gönder
+          onceki_komut = komut; // Önceki komutu güncelle
+        }
       }
     }
 
     digitalWrite(RX_data_led, LOW); // Verinin Bittiğini Belirten Led
   }
+
   /**************************************************************/
   if (currentMillis - ISR1_evvelkiMILLIS >= ISR1_Zaman) // Zamanlayıcı
   {

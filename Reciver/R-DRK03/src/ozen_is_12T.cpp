@@ -1,4 +1,4 @@
-//*---- R-DRK03 V25.0.0  ----*//
+//*---- R-DRK03 V25.0.1  ----*//
 //*----	Model_3 12T ----*//
 //* ÖzenİŞ 2016 Model'de test Edildi. *//
 //* ÖzenİŞ 2011 Model'de test Edildi. *//
@@ -13,6 +13,7 @@ uint8_t kimlik_dogrulama_key = 100; // todo Bu Şifre Alıcı Ve Verici Eşleşm
 //* değişken
 bool yetki = false; // Kumanda Şifrelemede Yetkilendirme Değişkeni
 bool flag = false;  // Tuşa basılı tuttuğu sürece saçmalamaması için
+uint8_t onceki_komut = 255; // Önceki komutu saklamak için (255 = başlangıç değeri)
 
 bool bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0 = true; // Mainboard'a Gidecek Birinci Veri
 bool bit15, bit14, bit13, bit12, bit11, bit10, bit9, bit8;  // Mainboard'a Gidecek  İkinci Veri
@@ -163,7 +164,12 @@ void loop()
       if (sifre_int == kimlik_dogrulama_key) // Yetkiyi Sorgula
       {
         uint8_t komut = buf[1]; // İkinci byte: komut
-        rf_data(komut);         // Komutu rf_data'ya gönder
+        // Ard arda gelen aynı komutları filtrele
+        if (komut != onceki_komut)
+        {
+          rf_data(komut);       // Komutu rf_data'ya gönder
+          onceki_komut = komut; // Önceki komutu güncelle
+        }
       }
     }
 

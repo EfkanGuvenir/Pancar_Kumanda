@@ -1,5 +1,10 @@
 # Sürüm Notları
 
+## T-DRK03 V25.0.3
+* Tuş basılı tutulduğu sürece her 500ms'de bir veri gönderimi (donma olmadan)
+* Non-blocking veri gönderim sistemi eklendi
+* millis() fonksiyonu ile zamanlama kontrolü
+
 ## T-DRK03 V25.0.2
 * Şifreleme İle ilgili ufak güncelleme
 

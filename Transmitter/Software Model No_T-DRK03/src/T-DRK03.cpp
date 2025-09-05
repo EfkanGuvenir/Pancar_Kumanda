@@ -1,4 +1,4 @@
-//*---- T-DRK03 V25.0.2  ----*//
+//*---- T-DRK03 V25.0.3  ----*//
 
 #include <Arduino.h>
 #include <avr/sleep.h>
@@ -159,6 +159,12 @@ void setup()
   goToSleep();
 }
 
+// Mevcut global değişkenlerden sonra (yaklaşık 11. satır civarı) bu değişkenleri ekle
+unsigned long sonGonderimZamani = 0;
+const unsigned long gonderimAraligi = 500; // 500 milisaniye
+bool tusBasili = false;
+char mevcutTus = 0;
+
 void loop()
 {
   char key = kpd.getKey(); // Basılı olan tuşu al
@@ -166,6 +172,8 @@ void loop()
   if (kpd.getState() == RELEASED) // Button Bırakıldığını Algılar
   {
     digitalWrite(led, LOW);
+    tusBasili = false;
+    mevcutTus = 0;
     for (int i = 0; i < 3; i++) // 3 Kez Veri Gönderir
     {
       uint8_t hexData[] = {sifreleme, 0}; // Gönderilecek hex kodunu temsil eden bayt dizisi
@@ -179,13 +187,26 @@ void loop()
   if (key)
   {
     digitalWrite(led, HIGH);
-    for (int i = 0; i < 2; i++) // 2 Kez Veri Gönderir
-    {
-      uint8_t hexData[] = {sifreleme, static_cast<uint8_t>(key)};
-      vw_send(hexData, sizeof(hexData));
-      vw_wait_tx(); // Wait until the whole message is gone
-      delayMicroseconds(500);
-    }
+
+    // Tuşa Bastığı ilk an Veri Gönderir
+    uint8_t hexData[] = {sifreleme, static_cast<uint8_t>(key)};
+    vw_send(hexData, sizeof(hexData));
+    vw_wait_tx(); // Wait until the whole message is gone
+    delayMicroseconds(500);
+
+    tusBasili = true;
+    mevcutTus = key;
+    sonGonderimZamani = millis(); // Tuş ilk basıldığında zamanlayıcıyı sıfırla
+  }
+
+  // Tuş basılıyken her 500ms'de bir donma olmadan veri gönder
+  if (tusBasili && (millis() - sonGonderimZamani >= gonderimAraligi))
+  {
+    uint8_t hexData[] = {sifreleme, static_cast<uint8_t>(mevcutTus)};
+    vw_send(hexData, sizeof(hexData));
+    vw_wait_tx(); // Wait until the whole message is gone
+    delayMicroseconds(500);
+    sonGonderimZamani = millis(); // Son gönderim zamanını güncelle
   }
 
   /**************************************************************/

@@ -1,4 +1,4 @@
-//*---- R-DRK03 V25.0.1  ----*//
+//*---- R-DRK03 V25.0.2  ----*//
 //*----	Model_3 12T ----*//
 //* ÖzenİŞ 2016 Model'de test Edildi. *//
 //* ÖzenİŞ 2011 Model'de test Edildi. *//
@@ -37,7 +37,7 @@ void rf_data(uint8_t komut) //* Gelen Komutun Ayıklanması
 {
   if (komut == 0) //* Tuş Bırakıldığında
   {
-    bit0 = true, bit1 = false, bit2 = false, bit3 = false, bit4 = false, bit5 = false, bit7 = false;
+    bit0 = true, bit1 = false, bit2 = false, bit3 = false, bit4 = false, bit5 = false, bit6 = false, bit7 = false;
     bit8 = false, bit10 = false, bit11 = false, bit12 = false, bit13 = false, bit15 = false;
     flag = false; // Flag'ı Pasifleştir
   }
@@ -53,12 +53,9 @@ void rf_data(uint8_t komut) //* Gelen Komutun Ayıklanması
         bit9 = false;
     }
 
-    if (komut == 80) //* Makina ON/OFF
+    if (komut == 80) //* Makina ON/OFF (Yedek)
     {
-      bit6 = false;
-      bit14 = false;
-      bit7 = true;
-      bit15 = true;
+      bit6 = true;
     }
 
     if (komut == 70) //* Depo ON/OFF
@@ -140,7 +137,6 @@ void loop()
 
   if (vw_get_message(buf, &buflen)) // Non-blocking
   {
-    digitalWrite(RX_data_led, HIGH); // Veri Geldiğini Belirten Led
 
     // İlk byte kimlik doğrulama, ikinci byte komut
     if (buflen >= 2) // En az 2 byte geldiğinden emin ol
@@ -148,17 +144,18 @@ void loop()
       uint8_t sifre_int = buf[0];            // İlk byte: kimlik doğrulama
       if (sifre_int == kimlik_dogrulama_key) // Yetkiyi Sorgula
       {
-        uint8_t komut = buf[1]; // İkinci byte: komut
+        digitalWrite(RX_data_led, HIGH); // Veri Geldiğini Belirten Led
+        uint8_t komut = buf[1];          // İkinci byte: komut
         // Ard arda gelen aynı komutları filtrele
         if (komut != onceki_komut)
         {
           rf_data(komut);       // Komutu rf_data'ya gönder
           onceki_komut = komut; // Önceki komutu güncelle
         }
+        if (komut == 0)
+          digitalWrite(RX_data_led, LOW); // Veri Geldiğini Belirten Led
       }
     }
-
-    digitalWrite(RX_data_led, LOW); // Verinin Bittiğini Belirten Led
   }
   /**************************************************************/
   if (currentMillis - ISR1_evvelkiMILLIS >= ISR1_Zaman) // Zamanlayıcı

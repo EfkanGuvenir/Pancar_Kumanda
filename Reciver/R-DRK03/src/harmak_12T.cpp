@@ -1,4 +1,4 @@
-//*---- R-DRK03 V25.0.1  ----*//
+//*---- R-DRK03 V25.0.2 ----*//
 //*----	Model_3 12T ----*//
 
 #include <Arduino.h>     //Arduino Library
@@ -9,8 +9,8 @@
 uint8_t kimlik_dogrulama_key = 100; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (100-255 Arasında değer olmalı)
 /**************************************************************/
 //* değişken
-bool yetki = false; // Kumanda Şifrelemede Yetkilendirme Değişkeni
-bool flag = false;  // Tuşa basılı tuttuğu sürece saçmalamaması için
+bool yetki = false;         // Kumanda Şifrelemede Yetkilendirme Değişkeni
+bool flag = false;          // Tuşa basılı tuttuğu sürece saçmalamaması için
 uint8_t onceki_komut = 255; // Önceki komutu saklamak için (255 = başlangıç değeri)
 
 bool bit6 = true;                                          // Boşta Sürekli bit aktif olduğu için
@@ -165,7 +165,6 @@ void loop()
 
   if (vw_get_message(buf, &buflen)) // Non-blocking
   {
-    digitalWrite(RX_data_led, HIGH); // Veri Geldiğini Belirten Led
 
     // İlk byte kimlik doğrulama, ikinci byte komut
     if (buflen >= 2) // En az 2 byte geldiğinden emin ol
@@ -173,16 +172,18 @@ void loop()
       uint8_t sifre_int = buf[0];            // İlk byte: kimlik doğrulama
       if (sifre_int == kimlik_dogrulama_key) // Yetkiyi Sorgula
       {
-        uint8_t komut = buf[1];      // İkinci byte: komut
+        digitalWrite(RX_data_led, HIGH); // Veri Geldiğini Belirten Led
+        uint8_t komut = buf[1];          // İkinci byte: komut
         // Ard arda gelen aynı komutları filtrele
-        if (komut != onceki_komut) {
-          rf_data(komut); // Komutu rf_data'ya gönder
+        if (komut != onceki_komut)
+        {
+          rf_data(komut);       // Komutu rf_data'ya gönder
           onceki_komut = komut; // Önceki komutu güncelle
         }
+        if (komut == 0)
+          digitalWrite(RX_data_led, LOW); // Veri Geldiğini Belirten Led
       }
     }
-
-    digitalWrite(RX_data_led, LOW); // Verinin Bittiğini Belirten Led
   }
   /**************************************************************/
   if (currentMillis - ISR1_evvelkiMILLIS >= ISR1_Zaman) // Zamanlayıcı

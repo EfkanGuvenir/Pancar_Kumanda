@@ -11,8 +11,8 @@
 uint8_t kimlik_dogrulama_key = 100; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (100-255 Arasında değer olmalı)
 /**************************************************************/
 //* değişken
-bool yetki = false; // Kumanda Şifrelemede Yetkilendirme Değişkeni
-bool flag = false;  // Tuşa basılı tuttuğu sürece saçmalamaması için
+bool yetki = false;         // Kumanda Şifrelemede Yetkilendirme Değişkeni
+bool flag = false;          // Tuşa basılı tuttuğu sürece saçmalamaması için
 uint8_t onceki_komut = 255; // Önceki komutu saklamak için (255 = başlangıç değeri)
 
 bool bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0 = true; // Mainboard'a Gidecek Birinci Veri
@@ -37,62 +37,47 @@ void rf_data(uint8_t komut) //* Gelen Komutun Ayıklanması
 {
   if (komut == 0) //* Tuş Bırakıldığında
   {
-    bit0 = true, bit1 = false, bit2 = false, bit3 = false, bit4 = false, bit5 = false, bit6 = false, bit7 = false;
-    bit8 = false, bit9 = false, bit10 = false, bit11 = false, bit12 = false, bit13 = false, bit14 = false, bit15 = false;
+    bit0 = true, bit1 = false, bit2 = false, bit3 = false, bit4 = false, bit5 = false, bit7 = false;
+    bit8 = false, bit10 = false, bit11 = false, bit12 = false, bit13 = false, bit15 = false;
     flag = false; // Flag'ı Pasifleştir
-
-    if (otomatik_aktif == true)
-      bit9 = true;
-    else
-      bit9 = false;
-
-    if (depo_aktif == true)
-    {
-      bit6 = true;
-      bit14 = true;
-    }
-    else
-    {
-      bit7 = true;
-      bit15 = true;
-    }
   }
 
   if ((flag == false) && (komut != 0)) // işlemler birdan fazla yapılmaması için
   {
     if (komut == 72) //* Otomatik ON/OFF
     {
-      if (otomatik_aktif) // Otomatik Aktif ise
-      {
-        otomatik_aktif = false; // Otomatiği Kapat
-        bit9 = false;
-      }
-      else // Otomatik Aktif Değilse
-      {
-        otomatik_aktif = true;
+      otomatik_aktif = !otomatik_aktif;
+      if (otomatik_aktif == true)
         bit9 = true;
-      }
+      else
+        bit9 = false;
     }
 
     if (komut == 80) //* Makina ON/OFF
     {
-      bit6 = true;
+      bit6 = false;
+      bit14 = false;
+      bit7 = true;
+      bit15 = true;
     }
 
     if (komut == 70) //* Depo ON/OFF
     {
-      if (depo_aktif) // depo Aktif ise
+      if (depo_aktif == true)
       {
+        bit6 = false;
+        bit14 = false;
         bit7 = true;
         bit15 = true;
-        depo_aktif = false; // depo Kapat
       }
-      else // depo Aktif Değilse
+      if (depo_aktif == false)
       {
+        bit7 = false;
+        bit15 = false;
         bit6 = true;
         bit14 = true;
-        depo_aktif = true;
       }
+      depo_aktif = !depo_aktif;
     }
 
     if (komut == 76) //* Sökücü Yukarı

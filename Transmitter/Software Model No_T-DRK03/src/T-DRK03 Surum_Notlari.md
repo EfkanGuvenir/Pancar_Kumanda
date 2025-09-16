@@ -1,5 +1,9 @@
 # Sürüm Notları
 
+## T-DRK03 V25.0.4
+* İlk basımda 2 kez veri gönderecek kod yazıldı.
+* Tuş basılı tutulduğu sürece her 600ms'de bir veri gönderimi
+
 ## T-DRK03 V25.0.3
 * Tuş basılı tutulduğu sürece her 500ms'de bir veri gönderimi (donma olmadan)
 * Non-blocking veri gönderim sistemi eklendi

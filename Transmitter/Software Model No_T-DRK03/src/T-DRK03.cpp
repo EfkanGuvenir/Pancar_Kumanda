@@ -1,4 +1,4 @@
-//*---- T-DRK03 V25.0.3  ----*//
+//*---- T-DRK03 V25.0.4  ----*//
 
 #include <Arduino.h>
 #include <avr/sleep.h>
@@ -161,7 +161,7 @@ void setup()
 
 // Mevcut global değişkenlerden sonra (yaklaşık 11. satır civarı) bu değişkenleri ekle
 unsigned long sonGonderimZamani = 0;
-const unsigned long gonderimAraligi = 500; // 500 milisaniye
+const unsigned long gonderimAraligi = 600; // 600 milisaniye
 bool tusBasili = false;
 char mevcutTus = 0;
 
@@ -188,8 +188,11 @@ void loop()
   {
     digitalWrite(led, HIGH);
 
-    // Tuşa Bastığı ilk an Veri Gönderir
+    // Tuşa Bastığı ilk an 2 defa Veri Gönderir
     uint8_t hexData[] = {sifreleme, static_cast<uint8_t>(key)};
+    vw_send(hexData, sizeof(hexData));
+    vw_wait_tx(); // Wait until the whole message is gone
+    delayMicroseconds(500);
     vw_send(hexData, sizeof(hexData));
     vw_wait_tx(); // Wait until the whole message is gone
     delayMicroseconds(500);
@@ -199,7 +202,7 @@ void loop()
     sonGonderimZamani = millis(); // Tuş ilk basıldığında zamanlayıcıyı sıfırla
   }
 
-  // Tuş basılıyken her 500ms'de bir donma olmadan veri gönder
+  // Tuş basılıyken her 600ms'de bir donma olmadan veri gönder
   if (tusBasili && (millis() - sonGonderimZamani >= gonderimAraligi))
   {
     uint8_t hexData[] = {sifreleme, static_cast<uint8_t>(mevcutTus)};

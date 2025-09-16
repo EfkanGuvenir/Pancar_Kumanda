@@ -15,8 +15,10 @@ bool yetki = false;         // Kumanda Şifrelemede Yetkilendirme Değişkeni
 bool flag = false;          // Tuşa basılı tuttuğu sürece saçmalamaması için
 uint8_t onceki_komut = 255; // Önceki komutu saklamak için (255 = başlangıç değeri)
 
-bool bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0 = true; // Mainboard'a Gidecek Birinci Veri
-bool bit15, bit14, bit13, bit12, bit11, bit10, bit9, bit8;  // Mainboard'a Gidecek  İkinci Veri
+constexpr bool bit0 = true;                          // Boşta Sürekli bit pasif olduğu için
+constexpr bool bit8 = false;                         // Boşta Sürekli bit aktif olduğu için
+bool bit7, bit6, bit5, bit4, bit3, bit2, bit1;       // Mainboard'a Gidecek Birinci Veri
+bool bit15, bit14, bit13, bit12, bit11, bit10, bit9; // Mainboard'a Gidecek  İkinci Veri
 /**************************************************************/
 //* ON OFF Sistem için
 bool otomatik_aktif = false; // On-Off İçin Değişlen
@@ -37,40 +39,43 @@ void rf_data(uint8_t komut) //* Gelen Komutun Ayıklanması
 {
   if (komut == 0) //* Tuş Bırakıldığında
   {
-    bit0 = true, bit1 = false, bit2 = false, bit3 = false, bit4 = false, bit5 = false, bit6 = false, bit7 = false;
-    bit8 = false, bit9 = false, bit10 = false, bit11 = false, bit12 = false, bit13 = false, bit14 = false, bit15 = false;
+    bit1 = false, bit2 = false, bit3 = false, bit4 = false, bit5 = false, bit7 = false;
+    bit10 = false, bit11 = false, bit12 = false, bit13 = false, bit15 = false;
     flag = false; // Flag'ı Pasifleştir
-
-    if (otomatik_aktif == true)
-      bit9 = true;
   }
 
   if ((flag == false) && (komut != 0)) // işlemler birdan fazla yapılmaması için
   {
     if (komut == 72) //* Otomatik ON/OFF
     {
-      otomatik_aktif = true;
+      otomatik_aktif = !otomatik_aktif;
+      if (otomatik_aktif == true)
+        bit9 = true;
+      else
+        bit9 = false;
     }
 
     if (komut == 80) //* Makina ON/OFF (Yedek)
     {
-      otomatik_aktif = false;
     }
 
     if (komut == 70) //* Depo ON/OFF
     {
-      if (depo_aktif) // depo Aktif ise
+      if (depo_aktif == true)
       {
+        bit6 = false;
+        bit14 = false;
         bit7 = true;
         bit15 = true;
-        depo_aktif = false; // depo Kapat
       }
-      else // depo Aktif Değilse
+      if (depo_aktif == false)
       {
+        bit7 = false;
+        bit15 = false;
         bit6 = true;
         bit14 = true;
-        depo_aktif = true;
       }
+      depo_aktif = !depo_aktif;
     }
 
     if (komut == 76) //* Sökücü Yukarı

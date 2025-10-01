@@ -1,4 +1,4 @@
-//*---- T-DRK03 V25.0.4  ----*//
+//*---- T-DRK03 V25.0.5  ----*//
 
 #include <Arduino.h>
 #include <avr/sleep.h>
@@ -161,7 +161,7 @@ void setup()
 
 // Mevcut global değişkenlerden sonra (yaklaşık 11. satır civarı) bu değişkenleri ekle
 unsigned long sonGonderimZamani = 0;
-const unsigned long gonderimAraligi = 600; // 600 milisaniye
+const unsigned long gonderimAraligi = 50; // ms aralığında veri gönderimi
 bool tusBasili = false;
 char mevcutTus = 0;
 
@@ -193,16 +193,12 @@ void loop()
     vw_send(hexData, sizeof(hexData));
     vw_wait_tx(); // Wait until the whole message is gone
     delayMicroseconds(500);
-    vw_send(hexData, sizeof(hexData));
-    vw_wait_tx(); // Wait until the whole message is gone
-    delayMicroseconds(500);
-
     tusBasili = true;
     mevcutTus = key;
     sonGonderimZamani = millis(); // Tuş ilk basıldığında zamanlayıcıyı sıfırla
   }
 
-  // Tuş basılıyken her 600ms'de bir donma olmadan veri gönder
+  // Tuş basılıyken her ms'de bir donma olmadan veri gönder
   if (tusBasili && (millis() - sonGonderimZamani >= gonderimAraligi))
   {
     uint8_t hexData[] = {sifreleme, static_cast<uint8_t>(mevcutTus)};

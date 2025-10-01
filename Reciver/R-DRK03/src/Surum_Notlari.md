@@ -1,5 +1,8 @@
 # Sürüm Notları
 
+## R-DRK03 V25.0.3
+* Kumandadan 200ms boyunca veri kesilirse tuş bırakmış sayılacak kod eklendi.
+
 ## R-DRK03 V25.0.2
 * Sinyal Ledi Kısa Süreli Yanıp sönmesi Değiştirildi. > Veri Gelince Tuş bırakılana kadar Ledyanmaya devam eder
 

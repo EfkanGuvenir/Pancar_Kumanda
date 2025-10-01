@@ -1,4 +1,4 @@
-//*---- R-DRK03 V25.0.2 ----*//
+//*---- R-DRK03 V25.0.3 ----*//
 //*----	Model_3 12T ----*//
 
 #include <Arduino.h>     //Arduino Library
@@ -25,6 +25,9 @@ bool depo_aktif = false;     // On-Off İçin Değişlen
 //* Zamanlama
 unsigned long ISR1_Zaman = 50;    // 1.Veriyi Gönderecek Süre
 unsigned long ISR1_evvelkiMILLIS; // 1.Veriyi Gönderecek Süre
+
+unsigned long ISR2_Zaman = 200;   // Gelen Veri Olmadığında Tuş Bırakılmış Sayılacak Süre
+unsigned long ISR2_evvelkiMILLIS; // Gelen Veri Olmadığında Tuş Bırakılmış Sayılacak Süre
 /**************************************************************/
 //* Pin Out
 const int RF_module_pin = 2; // 433mhz Alıcının Bağlı Olduğu Pin (interrupt olsa iyi olur)
@@ -174,16 +177,30 @@ void loop()
       {
         digitalWrite(RX_data_led, HIGH); // Veri Geldiğini Belirten Led
         uint8_t komut = buf[1];          // İkinci byte: komut
+        ISR2_evvelkiMILLIS = currentMillis;
         // Ard arda gelen aynı komutları filtrele
         if (komut != onceki_komut)
         {
           rf_data(komut);       // Komutu rf_data'ya gönder
           onceki_komut = komut; // Önceki komutu güncelle
+          ISR2_evvelkiMILLIS = currentMillis;
         }
         if (komut == 0)
           digitalWrite(RX_data_led, LOW); // Veri Geldiğini Belirten Led
       }
     }
+  }
+  /**************************************************************/
+  if (currentMillis - ISR2_evvelkiMILLIS >= ISR2_Zaman) //
+  {
+    // Veri kesintisi sürüyorsa ve son durum zaten 'bırakıldı' değilse, bir kez bırakma uygula
+    if (onceki_komut != 0 || flag)
+    {
+      rf_data(0);       // Tuş bırakıldı mantığını uygula
+      onceki_komut = 0; // Yinelenmeyi önle
+      digitalWrite(RX_data_led, LOW);
+    }
+    ISR2_evvelkiMILLIS = currentMillis; // Süreyi tekrar başlat
   }
   /**************************************************************/
   if (currentMillis - ISR1_evvelkiMILLIS >= ISR1_Zaman) // Zamanlayıcı

@@ -1,4 +1,4 @@
-//*---- R-DRK03 V25.0.3 ----*//
+//*---- R-DRK03 V25.0.4 ----*//
 //*----	Model_3 12T ----*//
 //* ÖzenİŞ 2016 Model'de test Edildi. *//
 //* ÖzenİŞ 2011 Model'de test Edildi. *//
@@ -32,7 +32,7 @@ unsigned long ISR1_evvelkiMILLIS; // 1.Veriyi Gönderecek Süre
 unsigned long ISR2_Zaman = 200;   // Gelen Veri Olmadığında Tuş Bırakılmış Sayılacak Süre
 unsigned long ISR2_evvelkiMILLIS; // Gelen Veri Olmadığında Tuş Bırakılmış Sayılacak Süre
 
-bool data_send_flag;              // İki Ayrı data göndereceği süre için
+bool data_send_flag; // İki Ayrı data göndereceği süre için
 /**************************************************************/
 //* Pin Out
 const int RF_module_pin = 2; // 433mhz Alıcının Bağlı Olduğu Pin (interrupt olsa iyi olur)
@@ -114,7 +114,7 @@ void setup()
 {
   Serial.begin(2400);           // Seri Monitör
   vw_set_rx_pin(RF_module_pin); // 433mhz Modül Pin'i Belirlenmesi
-  vw_setup(2000);               // Saniye/Bit
+  vw_setup(1200);               // Saniye/Bit
   vw_rx_start();                // Start the receiver PLL running
 
   //* Pin Output

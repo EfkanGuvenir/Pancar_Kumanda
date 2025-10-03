@@ -1,4 +1,4 @@
-//*---- R-DRK03 V25.0.3 ----*//
+//*---- R-DRK03 V25.0.4 ----*//
 //*----	Model_3 12T ----*//
 
 #include <Arduino.h>     //Arduino Library
@@ -108,7 +108,7 @@ void setup()
 {
   Serial.begin(1200);           // Seri Monitör
   vw_set_rx_pin(RF_module_pin); // 433mhz Modül Pin'i Belirlenmesi
-  vw_setup(2000);               // Saniye/Bit
+  vw_setup(1200);               // Saniye/Bit
   vw_rx_start();                // Start the receiver PLL running
 
   //* Pin Output

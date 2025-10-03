@@ -1,5 +1,8 @@
 # Sürüm Notları
 
+## R-DRK03 V25.0.4
+* VirtualWire 1200 bps bit hızına ayarlandı
+
 ## R-DRK03 V25.0.3
 * Kumandadan 200ms boyunca veri kesilirse tuş bırakmış sayılacak kod eklendi.
 

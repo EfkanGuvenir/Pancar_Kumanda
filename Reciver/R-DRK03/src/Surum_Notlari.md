@@ -1,5 +1,8 @@
 # Sürüm Notları
 
+## R-DRK03 V25.0.5 
+* 2 veri gelmesini beklemek sistemin yavasşaması, geç algılamasına sebepten dolayı kaldırıldı
+
 ## R-DRK03 V25.0.4
 * VirtualWire 1200 bps bit hızına ayarlandı
 

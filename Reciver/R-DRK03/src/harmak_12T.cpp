@@ -1,4 +1,4 @@
-//*---- R-DRK03 V25.0.4 ----*//
+//*---- R-DRK03 V25.0.5 ----*//
 //*----	Model_3 12T ----*//
 
 #include <Arduino.h>     //Arduino Library
@@ -168,26 +168,22 @@ void loop()
 
   if (vw_get_message(buf, &buflen)) // Non-blocking
   {
-
     // İlk byte kimlik doğrulama, ikinci byte komut
-    if (buflen >= 2) // En az 2 byte geldiğinden emin ol
+    uint8_t sifre_int = buf[0];            // İlk byte: kimlik doğrulama
+    if (sifre_int == kimlik_dogrulama_key) // Yetkiyi Sorgula
     {
-      uint8_t sifre_int = buf[0];            // İlk byte: kimlik doğrulama
-      if (sifre_int == kimlik_dogrulama_key) // Yetkiyi Sorgula
+      digitalWrite(RX_data_led, HIGH); // Veri Geldiğini Belirten Led
+      uint8_t komut = buf[1];          // İkinci byte: komut
+      ISR2_evvelkiMILLIS = currentMillis;
+      // Ard arda gelen aynı komutları filtrele
+      if (komut != onceki_komut)
       {
-        digitalWrite(RX_data_led, HIGH); // Veri Geldiğini Belirten Led
-        uint8_t komut = buf[1];          // İkinci byte: komut
+        rf_data(komut);       // Komutu rf_data'ya gönder
+        onceki_komut = komut; // Önceki komutu güncelle
         ISR2_evvelkiMILLIS = currentMillis;
-        // Ard arda gelen aynı komutları filtrele
-        if (komut != onceki_komut)
-        {
-          rf_data(komut);       // Komutu rf_data'ya gönder
-          onceki_komut = komut; // Önceki komutu güncelle
-          ISR2_evvelkiMILLIS = currentMillis;
-        }
-        if (komut == 0)
-          digitalWrite(RX_data_led, LOW); // Veri Geldiğini Belirten Led
       }
+      if (komut == 0)
+        digitalWrite(RX_data_led, LOW); // Veri Geldiğini Belirten Led
     }
   }
   /**************************************************************/

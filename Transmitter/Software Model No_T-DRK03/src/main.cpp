@@ -1,4 +1,4 @@
-//*---- T-DRK03 V25.0.5  ----*//
+//*---- T-DRK03 V25.0.6  ----*//
 
 #include <Arduino.h>
 #include <avr/sleep.h>
@@ -139,7 +139,7 @@ void setup()
   digitalWrite(led, LOW);
   /**************************************************************/
   vw_set_tx_pin(rf_data); // Vericinin Pin'i Ayrlanıyor
-  vw_setup(2000);         // bps - Vericinin hızı (Önerilen Değer Bu)
+  vw_setup(1200);         // bps - Vericinin hızı
   /**************************************************************/
   // pin change interrupt
   PCMSK2 |= bit(PCINT22); // pin 6

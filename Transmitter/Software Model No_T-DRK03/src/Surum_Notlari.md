@@ -1,5 +1,9 @@
 # Sürüm Notları
 
+## T-DRK03 V25.0.6
+* VirtualWire 1200 bps bit hızına ayarlandı
+
+
 ## T-DRK03 V25.0.5
 * Artık ilk basıldığında veri 2 kez gönderip, her 600ms de bir veri göndermeyecek.
 * Tuşa Basılı tutulduğu sürece 50ms de bir veri gönderir 

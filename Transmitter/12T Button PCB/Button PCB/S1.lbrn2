@@ -44,13 +44,13 @@
     <CutSetting type="Offset">
         <index Value="1"/>
         <name Value="PCB Mask"/>
-        <maxPower Value="30"/>
+        <maxPower Value="45"/>
         <maxPower2 Value="20"/>
         <speed Value="16.6667"/>
         <kerf Value="1"/>
         <zOffset Value="-5.5"/>
         <zPerPass Value="-0.5"/>
-        <interval Value="0.06"/>
+        <interval Value="0.04"/>
         <priority Value="2"/>
         <manualTabs Value="0"/>
         <tabSize Value="1"/>

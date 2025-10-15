@@ -37,11 +37,13 @@ bool bosalt_aktif = false;   // On-Off İçin Değişlen
 //* Değişkenler
 bool button_flag; // Button yanlış basılmaların önüne geçer
 
-bool bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0 = true; // Mainboard'a Gidecek Birinci Veri
-bool bit15, bit14, bit13, bit12, bit11, bit10, bit9, bit8;  // Mainboard'a Gidecek  İkinci Veri
+constexpr bool bit0 = true;                          // Boşta Sürekli bit pasif olduğu için
+constexpr bool bit8 = false;                         // Boşta Sürekli bit aktif olduğu için
+bool bit7, bit6, bit5, bit4, bit3, bit2, bit1;       // Mainboard'a Gidecek Birinci Veri
+bool bit15, bit14, bit13, bit12, bit11, bit10, bit9; // Mainboard'a Gidecek  İkinci Veri
 /**************************************************************/
 //* Zamanlama
-unsigned long ISR1_Zaman = 50;    // Veriyi Gönderecek Süre
+unsigned long ISR1_Zaman = 86;    // Veriyi Gönderecek Süre
 unsigned long ISR1_evvelkiMILLIS; // Veriyi Gönderecek Süre
 bool data_send_flag;              // İki Ayrı data göndereceği süre için
 
@@ -87,17 +89,8 @@ void loop()
     /**************************************************************/
     if (kpd.getState() == RELEASED) // Tuş Bırakıldığında
     {
-
-        bit0 = true, bit1 = false, bit2 = false, bit3 = false, bit4 = false, bit5 = false, bit6 = false, bit7 = false;
-        bit8 = false, bit9 = false, bit10 = false, bit11 = false, bit12 = false, bit13 = false, bit14 = false, bit15 = false;
-
-        if (otomatik_aktif == true)
-            bit9 = true;
-        if (bosalt_aktif == true)
-        {
-            bit6 = true;
-            bit14 = true;
-        }
+        bit1 = false, bit2 = false, bit3 = false, bit4 = false, bit5 = false, bit6 = false, bit7 = false;
+        bit10 = false, bit11 = false, bit12 = false, bit13 = false, bit14 = false, bit15 = false;
         digitalWrite(led_2, LOW);
     }
     /**************************************************************/
@@ -126,16 +119,24 @@ void loop()
             break;
 
         case 'G': //* Boşalt Çalıştır
-            bosalt_aktif = true;
-            bit6 = true;
-            bit14 = true;
             digitalWrite(led_2, HIGH);
+            if (bosalt_aktif) // depo Aktif ise
+            {
+                bit7 = true;
+                bit15 = true;
+            }
+            else // depo Aktif Değilse
+            {
+                bit6 = true;
+                bit14 = true;
+            }
             break;
 
         case 'F': //* Boşalt Durdur
             bosalt_aktif = false;
             bit7 = true;
             bit15 = true;
+
             digitalWrite(led_2, HIGH);
             break;
 

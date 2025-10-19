@@ -1,12 +1,13 @@
-//*---- R-DRK03 V25.0.5 ----*//
+//*---- R-DRK03 V25.6 ----*//
 //*----	Model_3 12T ----*//
 
 #include <Arduino.h>     //Arduino Library
 #include <VirtualWire.h> //433RF library
 #include <avr/wdt.h>     // Watchdog için gerekli kütüphane
+#include <EEPROM.h> // Kumanda Şifrelemesi İçin Gerekli Kütüphane
 /**************************************************************/
 //*Şifreleme
-uint8_t kimlik_dogrulama_key = 100; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (100-255 Arasında değer olmalı)
+uint8_t kimlik_dogrulama_key; // todo Bu Şifre Alıcı Ve Verici Eşleşmesi İçin Aynı Olmalıdır (100-255 Arasında değer olmalı)
 /**************************************************************/
 //* değişken
 bool yetki = false;         // Kumanda Şifrelemede Yetkilendirme Değişkeni
@@ -26,7 +27,7 @@ bool depo_aktif = false;     // On-Off İçin Değişlen
 unsigned long ISR1_Zaman = 50;    // 1.Veriyi Gönderecek Süre
 unsigned long ISR1_evvelkiMILLIS; // 1.Veriyi Gönderecek Süre
 
-unsigned long ISR2_Zaman = 200;   // Gelen Veri Olmadığında Tuş Bırakılmış Sayılacak Süre
+unsigned long ISR2_Zaman = 300;   // Gelen Veri Olmadığında Tuş Bırakılmış Sayılacak Süre
 unsigned long ISR2_evvelkiMILLIS; // Gelen Veri Olmadığında Tuş Bırakılmış Sayılacak Süre
 /**************************************************************/
 //* Pin Out
@@ -151,8 +152,35 @@ void setup()
   digitalWrite(RX_data_led, HIGH); // Veri Geldiğini Belirten Led
 
   //* watchdog
-  wdt_disable();                  // Watchdog'u devre dışı bırakın ve 2 saniyeden fazla bekleyin
-  delay(3000);                    // Yanlış yapılandırma durumunda Arduino'nun sonsuza kadar sıfırlanmaya devam etmemesi için yapıldı
+  wdt_disable(); // Watchdog'u devre dışı bırakın ve 2 saniyeden fazla bekleyin
+
+  //* Yeni Kimlik Doğrulama için 2 Saniye Dinle
+  kimlik_dogrulama_key = EEPROM.read(0); // Başlangıçta EEPROM'dan kayıtlı kimliği oku
+  unsigned long listenStart = millis(); // Zamanlayıcı Başlat
+  uint8_t buf[VW_MAX_MESSAGE_LEN]; // Gelen Veri İçin Buffer
+  uint8_t buflen; // Gelen Veri Uzunluğu
+  while (millis() - listenStart < 3000UL) // 3 Saniye Boyunca Dinle
+  {
+    buflen = VW_MAX_MESSAGE_LEN; // Buffer Uzunluğunu Ayarla
+    if (vw_get_message(buf, &buflen)) // gelen paket var mı?
+    {
+      if (buflen >= 2 && buf[1] == 80) // Yeni Kimlik Doğrulama Komutu mu?
+      {
+        kimlik_dogrulama_key = buf[0];         // İlk byte: kimlik doğrulama
+        EEPROM.write(0, kimlik_dogrulama_key); // Yeni kimlik doğrulamayı EEPROM'a kaydet
+        // Onay için LED ile bildirim yap
+        for (int i = 0; i < 5; i++)
+        {
+          digitalWrite(RX_data_led, HIGH);
+          delay(200);
+          digitalWrite(RX_data_led, LOW);
+          delay(200);
+        }
+        break; // dinlemeyi sonlandır
+      }
+    }
+    delay(10); // tight-loop önleme
+  }
   digitalWrite(RX_data_led, LOW); // Veri Geldiğini Belirten Led
   wdt_enable(WDTO_2S);            // 2 saniyelik bir zaman aşımı ile bekçi köpeğini etkinleştir
 }

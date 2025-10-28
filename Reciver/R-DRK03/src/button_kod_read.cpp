@@ -1,5 +1,4 @@
 //* Bu kod, farklı tuş takımları tarafından gönderilen kodları okumak için yazılmıştır.
-
 /**************************************************************/
 #include <Arduino.h>     //Arduino Library
 #include <VirtualWire.h> //433RF library
@@ -29,12 +28,10 @@ void loop()
 
   if (vw_get_message(buf, &buflen)) // Non-blocking
   {
-    int i;
     digitalWrite(RX_data_led, HIGH); // Veri Geldiğini Belirten Led
-    for (i = 0; i < buflen; i++)
-    {
-      Serial.write(buf[i]);
-    }
+    Serial.print(buf[0]);
+    Serial.print(" - ");
+    Serial.println(buf[1]);
     digitalWrite(RX_data_led, LOW); // Verinin Bittiğini Belirten Led
   }
 }
